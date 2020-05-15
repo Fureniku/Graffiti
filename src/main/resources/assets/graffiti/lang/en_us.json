@@ -1,0 +1,21 @@
+{
+	"item.graffiti.basic_pen_black": "Basic Pen (Black)",
+	"item.graffiti.basic_pen_dark_blue": "Basic Pen (Dark Blue)",
+	"item.graffiti.basic_pen_dark_green": "Basic Pen (Dark Green)",
+	"item.graffiti.basic_pen_dark_aqua": "Basic Pen (Dark Aqua)",
+	"item.graffiti.basic_pen_dark_red": "Basic Pen (Dark Red)",
+	"item.graffiti.basic_pen_dark_purple": "Basic Pen (Dark Purple)",
+	"item.graffiti.basic_pen_gold": "Basic Pen (Gold)",
+	"item.graffiti.basic_pen_gray": "Basic Pen (Gray)",
+	"item.graffiti.basic_pen_dark_gray": "Basic Pen (Dark Gray)",
+	"item.graffiti.basic_pen_blue": "Basic Pen (Blue)",
+	"item.graffiti.basic_pen_green": "Basic Pen (Green)",
+	"item.graffiti.basic_pen_aqua": "Basic Pen (Aqua)",
+	"item.graffiti.basic_pen_red": "Basic Pen (Red)",
+	"item.graffiti.basic_pen_light_purple": "Basic Pen (Light Purple)",
+	"item.graffiti.basic_pen_yellow": "Basic Pen (Yellow)",
+	"item.graffiti.basic_pen_white": "Basic Pen (White)",
+	"item.graffiti.eraser": "Eraser",
+	
+	"itemGroup.graffiti": "Graffiti"
+}
