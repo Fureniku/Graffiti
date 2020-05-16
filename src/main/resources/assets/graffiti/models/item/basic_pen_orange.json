@@ -1,0 +1,6 @@
+{
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "graffiti:item/basic_pen_orange"
+	}
+}

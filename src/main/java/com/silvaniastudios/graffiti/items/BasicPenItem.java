@@ -2,11 +2,9 @@ package com.silvaniastudios.graffiti.items;
 
 import java.awt.Color;
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import com.mojang.authlib.GameProfile;
 import com.silvaniastudios.graffiti.GraffitiBlocks;
 import com.silvaniastudios.graffiti.block.GraffitiBlock;
 import com.silvaniastudios.graffiti.client.gui.GuiWriteText;
@@ -31,13 +29,10 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.FakePlayer;
 
 public class BasicPenItem extends Item {
 	
 	Color col;
-	GameProfile fakePlayerProfile = new GameProfile(UUID.randomUUID(), "FakePlayer");
-	FakePlayer guiCam = null;
 
 	public BasicPenItem(Properties properties, Color col) {
 		super(properties);

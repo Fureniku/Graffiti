@@ -1,5 +1,10 @@
 package com.silvaniastudios.graffiti.items;
 
-public class MagicPenItem {
+import java.awt.Color;
 
+public class MagicPenItem extends BasicPenItem {
+
+	public MagicPenItem(Properties properties) {
+		super(properties, Color.BLACK);
+	}
 }

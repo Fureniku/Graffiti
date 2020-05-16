@@ -7,7 +7,7 @@ import net.minecraft.item.ItemStack;
 
 public class GraffitiItemGroups {
 	
-	public static final ItemGroup GRAFFITI_ITEM_GROUP = new GraffitiItemGroup(Graffiti.MODID, () -> new ItemStack(GraffitiItems.BASIC_PEN));
+	public static final ItemGroup GRAFFITI_ITEM_GROUP = new GraffitiItemGroup(Graffiti.MODID, () -> new ItemStack(GraffitiItems.BASIC_PEN_DARK_RED));
 
 	public static class GraffitiItemGroup extends ItemGroup {
 	
