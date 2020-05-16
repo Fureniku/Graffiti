@@ -2,7 +2,8 @@ package com.silvaniastudios.graffiti.tileentity;
 
 import java.util.ArrayList;
 
-import com.silvaniastudios.graffiti.drawables.GraffitiTextDrawable;
+import com.silvaniastudios.graffiti.drawables.PixelGridDrawable;
+import com.silvaniastudios.graffiti.drawables.TextDrawable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
@@ -14,74 +15,41 @@ import net.minecraft.util.math.BlockPos;
 
 public class TileEntityGraffiti extends TileEntity {
 	
-	public int[][] pixelArray = new int[16][16];
-	public ArrayList<GraffitiTextDrawable> textList = new ArrayList<GraffitiTextDrawable>();
+	public PixelGridDrawable pixelGrid;
+	public ArrayList<TextDrawable> textList = new ArrayList<TextDrawable>();
 
 	public TileEntityGraffiti() {
 		super(GraffitiTileEntityTypes.GRAFFITI);
 	}
 	
-	public void writeText(GraffitiTextDrawable text) {
+	public void writeText(TextDrawable text) {
 		textList.add(text);
+		update();
+	}
+	
+	public void update() {
 		this.markDirty();
 		sendUpdates();
 	}
 	
-	public void setPixel(int x, int y, int col) {
-		y = Math.abs(y-16);
-		System.out.println("setting pixel " + x + ", " + y);
-		pixelArray[x][y] = col;
-		this.markDirty();
-		sendUpdates();
-	}
-	
-	public void erasePixel(int x, int y) {
-		setPixel(x, y, 0);
-	}
-	
-	public int getPixelRGB(int x, int y) {
-		return pixelArray[x][y];
-	}
-	
-	//Never naturally used anymore, but just kept in case I implement debugging later.
-	public void debugArray() {
-		for (int i = 0; i < 16; i++) {
-			String row = "";
-			for (int j = 0; j < 16; j++) {
-				if (pixelArray[j][i] != 0) {
-					row = row + "X";
-				} else {
-					row = row + " ";
-				}
-			}
-			System.out.println(row);
+	public int getVoxel(double coordinate, Direction d, int size) {
+		//North/east is slightly different so negate 1 to "calibrate"
+		if (d == Direction.NORTH || d == Direction.EAST) {
+			return (int) Math.ceil(coordinate*size)-1;
 		}
+		return (int) Math.ceil(coordinate*size);
 	}
 	
 	public CompoundNBT write(CompoundNBT compound) {
-		for (int i = 0; i < 16; i++) {
-			compound.putIntArray("row_"+i, pixelArray[i]);
-		}
-		GraffitiTextDrawable.serializeNBT(compound, textList);
+		PixelGridDrawable.serializeNBT(compound, pixelGrid);
+		TextDrawable.serializeNBT(compound, textList);
 		return super.write(compound);
 	}
 	
 	public void read(CompoundNBT compound) {
-		for (int i = 0; i < 16; i++) {
-			if (compound.contains("row_"+i)) {
-				pixelArray[i] = compound.getIntArray("row_"+i);
-			}
-		}
-		textList = GraffitiTextDrawable.deserializeNBT(compound);
+		pixelGrid = PixelGridDrawable.deserializeNBT(compound);
+		textList = TextDrawable.deserializeNBT(compound);
 		super.read(compound);
-	}
-	
-	public int getVoxel(double coordinate, Direction d) {
-		//North/east is slightly different so negate 1 to "calibrate"
-		if (d == Direction.NORTH || d == Direction.EAST) {
-			return (int) Math.ceil(coordinate*16)-1;
-		}
-		return (int) Math.ceil(coordinate*16);
 	}
 
 	public BlockState getState() { 

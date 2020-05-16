@@ -8,8 +8,11 @@ import java.awt.Color;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.silvaniastudios.graffiti.drawables.TextDrawable;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.Matrix3f;
 import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.client.renderer.Vector3f;
@@ -23,9 +26,9 @@ public class RenderHelper {
 
 	private static ResourceLocation rloc = new ResourceLocation("forge:white");
 	private static TextureAtlasSprite tex = Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(rloc);
-	private static final float p = 1F/16F;
 	
-	public static void renderSinglePixel(Direction dir, MatrixStack matrixStack, int light, IVertexBuilder buffer, float x, float y, Color col) {
+	public static void renderSinglePixel(Direction dir, MatrixStack matrixStack, int light, IVertexBuilder buffer, float x, float y, Color col, float size) {
+		float p = 1F/size;
 		if (dir == Direction.NORTH) {
 			float depth = 1F/64F;
 			renderPlainQuad(dir, matrixStack, light, buffer, col,
@@ -57,6 +60,24 @@ public class RenderHelper {
 					depth, 1-Math.abs(-(y + p)), 1-Math.abs(-(x + p)), //br
 					depth, 1-Math.abs(-y),       1-Math.abs(-(x + p)), //tr
 					depth, 1-Math.abs(-y),       1-Math.abs(-x));      //tl
+		}
+		
+		if (dir == Direction.DOWN) {
+			float depth = 1F/64F;
+			renderPlainQuad(dir.getOpposite(), matrixStack, light, buffer, col,
+					1-Math.abs(-x),       depth, 1-Math.abs(-(y + p)), //bl
+					1-Math.abs(-(x + p)), depth, 1-Math.abs(-(y + p)), //br
+					1-Math.abs(-(x + p)), depth, 1-Math.abs(-y),       //tr
+					1-Math.abs(-x),       depth, 1-Math.abs(-y));      //tl
+		}
+		
+		if (dir == Direction.UP) {
+			float depth = 1F - (1F/64F);
+			renderPlainQuad(dir.getOpposite(), matrixStack, light, buffer, col,
+					1-Math.abs(1-x),       depth, 1-Math.abs(-(y + p)), //bl
+					1-Math.abs(1-(x + p)), depth, 1-Math.abs(-(y + p)), //br
+					1-Math.abs(1-(x + p)), depth, 1-Math.abs(-y),       //tr
+					1-Math.abs(1-x),       depth, 1-Math.abs(-y));      //tl
 		}
 	}
 
@@ -106,5 +127,65 @@ public class RenderHelper {
 		.lightmap(light)
 		.normal(matrixNormal, normalVector.getX(), normalVector.getY(), normalVector.getZ())
 		.endVertex();
-	}	
+	}
+
+	//I never want to look at OpenGL again. but I know it'll be back soon. Kill me.
+	public static void renderTextNorthSouth(TextDrawable text, MatrixStack matrixStack, FontRenderer font, IRenderTypeBuffer buffer, int combinedLightIn, boolean north) {
+		matrixStack.push();
+		matrixStack.translate(0.5, 0.5, 0.5);
+
+		if (north) {
+			matrixStack.rotate(Vector3f.ZN.rotationDegrees(text.getRotation()));
+			matrixStack.translate(0, 0, -0.5+(1F/64F));
+			matrixStack.scale(0.015625F, -0.015625F, 0.015625F);
+		} else {
+			matrixStack.rotate(Vector3f.ZP.rotationDegrees(text.getRotation()));
+			matrixStack.translate(0, 0, 0.5-(1F/64F));
+			matrixStack.scale(-0.015625F, -0.015625F, 0.015625F);
+		}
+		matrixStack.scale(text.scale(), text.scale(), text.scale());
+		
+		font.renderString(text.getText(), text.xPos()-32, Math.abs(64-text.yPos())-32, text.getCol(), false, matrixStack.getLast().getMatrix(), buffer, false, 0, combinedLightIn);
+		matrixStack.pop();
+	}
+	
+	public static void renderTextEastWest(TextDrawable text, MatrixStack matrixStack, FontRenderer font, IRenderTypeBuffer buffer, int combinedLightIn, boolean east) {
+		matrixStack.push();
+		matrixStack.translate(0.5, 0.5, 0.5);
+		matrixStack.rotate(Vector3f.YN.rotationDegrees(90));
+
+		if (east) {
+			matrixStack.rotate(Vector3f.ZN.rotationDegrees(text.getRotation()));
+			matrixStack.translate(0, 0, -0.5+(1F/64F));
+			matrixStack.scale(0.015625F, -0.015625F, 0.015625F);
+		} else {
+			matrixStack.rotate(Vector3f.ZP.rotationDegrees(text.getRotation()));
+			matrixStack.translate(0, 0, 0.5-(1F/64F));
+			matrixStack.scale(-0.015625F, -0.015625F, 0.015625F);
+		}
+		matrixStack.scale(text.scale(), text.scale(), text.scale());
+		
+		font.renderString(text.getText(), text.xPos()-32, Math.abs(64-text.yPos())-32, text.getCol(), false, matrixStack.getLast().getMatrix(), buffer, false, 0, combinedLightIn);
+		matrixStack.pop();
+	}
+	
+	public static void renderTextUpDown(TextDrawable text, MatrixStack matrixStack, FontRenderer font, IRenderTypeBuffer buffer, int combinedLightIn, boolean up) {
+		matrixStack.push();
+		matrixStack.translate(0.5, 0.5, 0.5);
+		matrixStack.rotate(Vector3f.XN.rotationDegrees(90));
+
+		if (up) {
+			matrixStack.rotate(Vector3f.ZP.rotationDegrees(text.getRotation()));
+			matrixStack.translate(0, 0, 0.5-(1F/64F));
+			matrixStack.scale(-0.015625F, -0.015625F, 0.015625F);
+		} else {
+			matrixStack.rotate(Vector3f.ZP.rotationDegrees(text.getRotation()));
+			matrixStack.translate(0, 0, -0.5+(1F/64F));
+			matrixStack.scale(0.015625F, -0.015625F, 0.015625F);
+		}
+		matrixStack.scale(text.scale(), text.scale(), text.scale());
+		
+		font.renderString(text.getText(), text.xPos()-32, Math.abs(64-text.yPos())-32, text.getCol(), false, matrixStack.getLast().getMatrix(), buffer, false, 0, combinedLightIn);
+		matrixStack.pop();
+	}
 }

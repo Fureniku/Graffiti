@@ -2,7 +2,7 @@ package com.silvaniastudios.graffiti.network;
 
 import java.util.function.Supplier;
 
-import com.silvaniastudios.graffiti.drawables.GraffitiTextDrawable;
+import com.silvaniastudios.graffiti.drawables.TextDrawable;
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
 
 import net.minecraft.network.PacketBuffer;
@@ -18,21 +18,23 @@ public class WriteTextPacket {
 	int blockZ;
 	int posX;
 	int posY;
+	float scale;
 	int col;
+	int rot;
 	
-	public WriteTextPacket(String text, BlockPos pos, int x, int y, int col) {
-		System.out.println("Creating packet");
+	public WriteTextPacket(String text, BlockPos pos, int x, int y, float scale, int col, int rot) {
 		this.text = text;
 		this.blockX = pos.getX();
 		this.blockY = pos.getY();
 		this.blockZ = pos.getZ();
 		this.posX = x;
 		this.posY = y;
+		this.scale = scale;
 		this.col = col;
+		this.rot = rot;
 	}
 	
 	public static void encode(WriteTextPacket pkt, PacketBuffer buf) {
-		System.out.println("encode");
 		buf.writeString(pkt.text);
 		
 		buf.writeInt(pkt.blockX);
@@ -41,13 +43,19 @@ public class WriteTextPacket {
 		
 		buf.writeInt(pkt.posX);
 		buf.writeInt(pkt.posY);
+		buf.writeFloat(pkt.scale);
 		buf.writeInt(pkt.col);
+		buf.writeInt(pkt.rot);
 	}
 	
 	public static WriteTextPacket decode(PacketBuffer buf) {
-		System.out.println("decode");
-		//							text										block position					text posX		text posY		text col
-		return new WriteTextPacket(buf.readString(), new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), buf.readInt(), buf.readInt(), buf.readInt());
+		return new WriteTextPacket(buf.readString(50), //text
+				new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), //block pos
+				buf.readInt(),  //posX
+				buf.readInt(),  //posY
+				buf.readFloat(), //scale
+				buf.readInt(),  //colour
+				buf.readInt()); //rotation
 	}
 	
 	public static class Handler {
@@ -61,7 +69,7 @@ public class WriteTextPacket {
 				if (world.getTileEntity(pos) instanceof TileEntityGraffiti) {
 					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(pos);
 					
-					te.writeText(new GraffitiTextDrawable(msg.text, msg.posX, msg.posY, msg.col, 1));
+					te.writeText(new TextDrawable(msg.text, msg.posX, msg.posY, msg.col, msg.scale, msg.rot));
 				}
 			});
 			

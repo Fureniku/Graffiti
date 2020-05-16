@@ -5,20 +5,22 @@ import java.util.ArrayList;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 
-public class GraffitiTextDrawable {
+public class TextDrawable {
 	
 	private String text;
 	private int colour;
 	private int xPos;
 	private int yPos;
-	private int scale;
+	private float scale;
+	private int rotation;
 	
-	public GraffitiTextDrawable(String txt, int x, int y, int col, int scale) {
+	public TextDrawable(String txt, int x, int y, int col, float scale, int rot) {
 		this.text = txt;
 		this.colour = col;
 		this.xPos = x;
 		this.yPos = y;
 		this.scale = scale;
+		this.rotation = rot;
 	}
 	
 	public String getText() {
@@ -37,21 +39,26 @@ public class GraffitiTextDrawable {
 		return yPos;
 	}
 	
-	public int scale() {
+	public float scale() {
 		return scale;
 	}
+	
+	public int getRotation() {
+		return rotation;
+	}
 
-	public static CompoundNBT serializeNBT(CompoundNBT nbt, ArrayList<GraffitiTextDrawable> textList) {
+	public static CompoundNBT serializeNBT(CompoundNBT nbt, ArrayList<TextDrawable> textList) {
 		ListNBT listnbt = new ListNBT();
 		
 		for (int i = 0; i < textList.size(); i++) {
-			GraffitiTextDrawable t = textList.get(i);
+			TextDrawable t = textList.get(i);
 			CompoundNBT textnbt = new CompoundNBT();
 			textnbt.putString("text", t.text);
 			textnbt.putInt("colour", t.colour);
 			textnbt.putInt("xPos", t.xPos);
 			textnbt.putInt("yPos", t.yPos);
-			textnbt.putInt("scale", t.scale);
+			textnbt.putFloat("scale", t.scale);
+			textnbt.putInt("rotation", t.rotation);
 			
 			listnbt.add(textnbt);
 		}
@@ -60,8 +67,8 @@ public class GraffitiTextDrawable {
 		return nbt;
 	}
 	
-	public static ArrayList<GraffitiTextDrawable> deserializeNBT(CompoundNBT nbt) {
-		ArrayList<GraffitiTextDrawable> textList = new ArrayList<GraffitiTextDrawable>();
+	public static ArrayList<TextDrawable> deserializeNBT(CompoundNBT nbt) {
+		ArrayList<TextDrawable> textList = new ArrayList<TextDrawable>();
 		
 		if (nbt.contains("text_objects")) {
 			ListNBT list = nbt.getList("text_objects", 10);
@@ -72,9 +79,10 @@ public class GraffitiTextDrawable {
 				int colour = textnbt.getInt("colour");
 				int xPos = textnbt.getInt("xPos");
 				int yPos = textnbt.getInt("yPos");
-				int scale = textnbt.getInt("scale");
+				float scale = textnbt.getFloat("scale");
+				int rot = textnbt.getInt("rotation");
 				
-				textList.add(new GraffitiTextDrawable(text, xPos, yPos, colour, scale));
+				textList.add(new TextDrawable(text, xPos, yPos, colour, scale, rot));
 			}
 		}
 		return textList;

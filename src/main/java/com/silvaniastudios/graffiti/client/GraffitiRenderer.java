@@ -5,7 +5,7 @@ import java.awt.Color;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.silvaniastudios.graffiti.block.GraffitiBlock;
-import com.silvaniastudios.graffiti.drawables.GraffitiTextDrawable;
+import com.silvaniastudios.graffiti.drawables.TextDrawable;
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
 
 import net.minecraft.block.BlockState;
@@ -19,7 +19,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GraffitiRenderer extends TileEntityRenderer<TileEntityGraffiti> {
 	
-	float p = 1/16F;
+	
 	public static final ResourceLocation TEXTURE = new ResourceLocation("forge:textures/white.png");
 
 	public GraffitiRenderer(final TileEntityRendererDispatcher rendererDispatcherIn) {
@@ -30,43 +30,72 @@ public class GraffitiRenderer extends TileEntityRenderer<TileEntityGraffiti> {
 	@Override
 	public void render(TileEntityGraffiti tileEntityIn, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int combinedLightIn, int combinedOverlayIn) {
 		IVertexBuilder vertexBuilderBlockQuads = buffer.getBuffer(RenderType.getEntitySolid(TEXTURE));
-		
+		FontRenderer fontrenderer = this.renderDispatcher.getFontRenderer();
 		BlockState state = tileEntityIn.getWorld().getBlockState(tileEntityIn.getPos());
 		
-		for (int i = 0; i < 16; i++) {
-			for (int j = 0; j < 16; j++) {
-				int rgb = tileEntityIn.getPixelRGB(j, i);
-				if (rgb != 0) {
-					RenderHelper.renderSinglePixel(state.get(GraffitiBlock.FACING), matrixStack, combinedLightIn, vertexBuilderBlockQuads, 
-							j*p, i*p, new Color(rgb));
+		if (tileEntityIn.pixelGrid != null) {
+			float p = 1.0F/tileEntityIn.pixelGrid.getSize();
+			for (int i = 0; i < tileEntityIn.pixelGrid.getSize(); i++) {
+				for (int j = 0; j < tileEntityIn.pixelGrid.getSize(); j++) {
+					int rgb = tileEntityIn.pixelGrid.getPixelRGB(j, i);
+					if (rgb != 0) {
+						RenderHelper.renderSinglePixel(state.get(GraffitiBlock.FACING), matrixStack, combinedLightIn, vertexBuilderBlockQuads, 
+								j*p, i*p, new Color(rgb), tileEntityIn.pixelGrid.getSize());
+					}
 				}
 			}
 		}
 		
 		if (state.get(GraffitiBlock.FACING) == Direction.NORTH) {
-
+			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
+				TextDrawable text = tileEntityIn.textList.get(i);
+				
+				RenderHelper.renderTextNorthSouth(text, matrixStack, fontrenderer, buffer, combinedLightIn, true);
+				//RenderHelper.renderText(text, matrixStack, fontrenderer, buffer, combinedLightIn, 180, 0.0D, 1.0D, 1D/64D);
+			}
 		}
 		
 		if (state.get(GraffitiBlock.FACING) == Direction.EAST) {
-			
+			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
+				TextDrawable text = tileEntityIn.textList.get(i);
+				
+				RenderHelper.renderTextEastWest(text, matrixStack, fontrenderer, buffer, combinedLightIn, true);
+				//RenderHelper.renderText(text, matrixStack, fontrenderer, buffer, combinedLightIn, 270, 1.0D, 1.0D, 1D/64D);
+			}
 		}
 		
 		if (state.get(GraffitiBlock.FACING) == Direction.SOUTH) {
 			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
-				GraffitiTextDrawable text = tileEntityIn.textList.get(i);
-
-				matrixStack.push();
-				FontRenderer fontrenderer = this.renderDispatcher.getFontRenderer();
-				matrixStack.translate(1.0D, 1.0D, 1D - (1D/64D));
-				matrixStack.scale(-0.010416667F, -0.010416667F, 0.010416667F);
+				TextDrawable text = tileEntityIn.textList.get(i);
 				
-				fontrenderer.renderString(text.getText(), text.xPos()*5.5F, Math.abs(16-text.yPos())*5.5F, text.getCol()*10, false, matrixStack.getLast().getMatrix(), buffer, false, 0, combinedLightIn);
-				matrixStack.pop();
+				RenderHelper.renderTextNorthSouth(text, matrixStack, fontrenderer, buffer, combinedLightIn, false);
+				//RenderHelper.renderText(text, matrixStack, fontrenderer, buffer, combinedLightIn, 0, 1.0D, 1.0D, 1 - (1D/64D));
 			}
 		}
 		
 		if (state.get(GraffitiBlock.FACING) == Direction.WEST) {
-
+			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
+				TextDrawable text = tileEntityIn.textList.get(i);
+				
+				RenderHelper.renderTextEastWest(text, matrixStack, fontrenderer, buffer, combinedLightIn, false);
+				//RenderHelper.renderText(text, matrixStack, fontrenderer, buffer, combinedLightIn, 90, 0.0D, 1.0D, 1 - (1D/64D));
+			}
+		}
+		
+		if (state.get(GraffitiBlock.FACING) == Direction.UP) {
+			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
+				TextDrawable text = tileEntityIn.textList.get(i);
+				
+				RenderHelper.renderTextUpDown(text, matrixStack, fontrenderer, buffer, combinedLightIn, true);
+			}
+		}
+		
+		if (state.get(GraffitiBlock.FACING) == Direction.DOWN) {
+			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
+				TextDrawable text = tileEntityIn.textList.get(i);
+				
+				RenderHelper.renderTextUpDown(text, matrixStack, fontrenderer, buffer, combinedLightIn, false);
+			}
 		}
 	}
 }

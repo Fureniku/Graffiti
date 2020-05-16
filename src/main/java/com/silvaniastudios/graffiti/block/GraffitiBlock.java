@@ -4,7 +4,6 @@ import com.silvaniastudios.graffiti.tileentity.GraffitiTileEntityTypes;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalBlock;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;

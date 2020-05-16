@@ -31,22 +31,25 @@ public class EraserItem extends Item {
 					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(clickedPos);
 					BlockState state = world.getBlockState(clickedPos);
 					
-					int x = te.getVoxel(context.getHitVec().x - clickedPos.getX(), state.get(GraffitiBlock.FACING));
-					int y = te.getVoxel(context.getHitVec().y - clickedPos.getY(), state.get(GraffitiBlock.FACING));
-					int z = te.getVoxel(context.getHitVec().z - clickedPos.getZ(), state.get(GraffitiBlock.FACING));
-
-					
-					if (state.get(GraffitiBlock.FACING) == Direction.NORTH) {
-						te.erasePixel(x, y);
-					}
-					if (state.get(GraffitiBlock.FACING) == Direction.EAST) {
-						te.erasePixel(z, y);
-					}
-					if (state.get(GraffitiBlock.FACING) == Direction.SOUTH) {
-						te.erasePixel(Math.abs(x-16), y);
-					}
-					if (state.get(GraffitiBlock.FACING) == Direction.WEST) {
-						te.erasePixel(Math.abs(z-16), y);
+					if (te.pixelGrid != null) {
+						int x = te.getVoxel(context.getHitVec().x - clickedPos.getX(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
+						int y = te.getVoxel(context.getHitVec().y - clickedPos.getY(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
+						int z = te.getVoxel(context.getHitVec().z - clickedPos.getZ(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
+						
+						if (state.get(GraffitiBlock.FACING) == Direction.NORTH) {
+							te.pixelGrid.erasePixel(x, y);
+						}
+						if (state.get(GraffitiBlock.FACING) == Direction.EAST) {
+							te.pixelGrid.erasePixel(z, y);
+						}
+						if (state.get(GraffitiBlock.FACING) == Direction.SOUTH) {
+							te.pixelGrid.erasePixel(Math.abs(x-16), y);
+						}
+						if (state.get(GraffitiBlock.FACING) == Direction.WEST) {
+							te.pixelGrid.erasePixel(Math.abs(z-16), y);
+						}
+						
+						return ActionResultType.PASS;
 					}
 				}
 			}
