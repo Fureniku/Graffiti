@@ -24,6 +24,8 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -39,8 +41,9 @@ public class BasicPenItem extends Item {
 		this.col = col;
 	}
 	
+	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-		if (playerIn.isCrouching()) {
+		if (playerIn.isCrouching() && handIn == Hand.MAIN_HAND) {
 			//People are gonna draw dicks with this mod and you thought I wouldn't abbreviate "pen itemstack" appropriately?
 			ItemStack penIS = playerIn.getHeldItem(handIn);
 			
@@ -54,9 +57,21 @@ public class BasicPenItem extends Item {
 		}
 		return ActionResult.resultPass(playerIn.getHeldItem(handIn));
 	}
+	
+	@Override
+	public boolean canPlayerBreakBlockWhileHolding(BlockState state, World worldIn, BlockPos pos, PlayerEntity player) {
+		return false;
+	}
 
 	@Override
 	public ActionResultType onItemUse(ItemUseContext context) {
+		return onItemUseSensitive(context, Hand.MAIN_HAND);
+	}
+	
+	public ActionResultType onItemUseSensitive(ItemUseContext context, Hand hand) {
+		if (context.getHand() != hand) {
+			return ActionResultType.FAIL;
+		}
 		World world = context.getWorld();
 		BlockPos pos = context.getPos().offset(context.getFace());
 		
@@ -65,77 +80,76 @@ public class BasicPenItem extends Item {
 		
 		if (!(clickedBlock instanceof GraffitiBlock)) {
 			BlockState state = GraffitiBlocks.GRAFFITI.getDefaultState().with(GraffitiBlock.FACING, context.getFace().getOpposite());
-			state = state.getStateForPlacement(context.getFace(), state, world, pos, pos, Hand.MAIN_HAND);
+			state = state.getStateForPlacement(context.getFace(), state, world, pos, pos, hand);
 			
 			if (world.getBlockState(pos).isAir(world, pos)) {
 				world.setBlockState(pos, state);
 				return ActionResultType.PASS;
 			}
 		} else {
-			
-				if (world.getTileEntity(clickedPos) instanceof TileEntityGraffiti) {
-					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(clickedPos);
-					BlockState state = world.getBlockState(clickedPos);
-					
-					int size = 64;
-					
-					int x = te.getVoxel(context.getHitVec().x - clickedPos.getX(), state.get(GraffitiBlock.FACING), 64);
-					int y = te.getVoxel(context.getHitVec().y - clickedPos.getY(), null, 64); //Dont pass dir for Y coordinate, its irrelevant and breaks things
-					int z = te.getVoxel(context.getHitVec().z - clickedPos.getZ(), state.get(GraffitiBlock.FACING), 64);
-					
-					boolean textMode = context.getItem().getDamage() == 0 ? true : false;
-					
-					if (te.pixelGrid == null && !textMode) {
-						te.pixelGrid = new PixelGridDrawable(16);
-						te.update();
-					}
-					
-					if (!textMode && te.pixelGrid.getSize() != 64) {
-						size = te.pixelGrid.getSize();
-						//get the voxels again coz of scaling
-						x = te.getVoxel(context.getHitVec().x - clickedPos.getX(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
-						y = te.getVoxel(context.getHitVec().y - clickedPos.getY(), null, te.pixelGrid.getSize()); //Dont pass dir for Y coordinate, its irrelevant and breaks things
-						z = te.getVoxel(context.getHitVec().z - clickedPos.getZ(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
-					}
-					
-					BlockPos camPos = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
-					
-					if (state.get(GraffitiBlock.FACING) == Direction.NORTH) {
-						processDrawingAction(te, x, y, col, textMode, camPos.offset(Direction.SOUTH), 0);
-						return ActionResultType.PASS;
-					}
-					if (state.get(GraffitiBlock.FACING) == Direction.EAST) {
-						processDrawingAction(te, z, y, col, textMode, camPos.offset(Direction.WEST), 0);
-						return ActionResultType.PASS;
-					}
-					if (state.get(GraffitiBlock.FACING) == Direction.SOUTH) {
-						processDrawingAction(te, Math.abs(x-size), y, col, textMode, camPos.offset(Direction.NORTH), 0);
-						return ActionResultType.PASS;
-					}
-					if (state.get(GraffitiBlock.FACING) == Direction.WEST) {
-						processDrawingAction(te, Math.abs(z-size), y, col, textMode, camPos.offset(Direction.EAST), 0);
-						return ActionResultType.PASS;
-					}
-					
-					Direction d = context.getPlacementHorizontalFacing();
-					
-					if (state.get(GraffitiBlock.FACING) == Direction.UP) {
-						int rot = 0;
-						if (d == Direction.NORTH) rot = 180;
-						if (d == Direction.EAST)  rot =  90;
-						if (d == Direction.WEST)  rot = 270;
-						processDrawingAction(te, x-1, z, col, textMode, camPos.offset(Direction.DOWN), rot);
-						return ActionResultType.PASS;
-					}
-					if (state.get(GraffitiBlock.FACING) == Direction.DOWN) {
-						int rot = 0;
-						if (d == Direction.EAST)  rot = 270;
-						if (d == Direction.SOUTH) rot = 180;
-						if (d == Direction.WEST)  rot =  90;
-						processDrawingAction(te, Math.abs(x-size), z, col, textMode, camPos.offset(Direction.UP), rot);
-						return ActionResultType.PASS;
-					}
+			if (world.getTileEntity(clickedPos) instanceof TileEntityGraffiti) {
+				TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(clickedPos);
+				BlockState state = world.getBlockState(clickedPos);
+				
+				int size = 64;
+				
+				int x = te.getVoxel(context.getHitVec().x - clickedPos.getX(), state.get(GraffitiBlock.FACING), 64);
+				int y = te.getVoxel(context.getHitVec().y - clickedPos.getY(), null, 64); //Dont pass dir for Y coordinate, its irrelevant and breaks things
+				int z = te.getVoxel(context.getHitVec().z - clickedPos.getZ(), state.get(GraffitiBlock.FACING), 64);
+				
+				boolean textMode = context.getPlayer().getHeldItem(Hand.MAIN_HAND).getDamage() == 0 ? true : false;
+				
+				if (te.pixelGrid == null && !textMode) {
+					te.pixelGrid = new PixelGridDrawable(16);
+					te.update();
 				}
+				
+				if (!textMode && te.pixelGrid.getSize() != 64) {
+					size = te.pixelGrid.getSize();
+					//get the voxels again coz of scaling
+					x = te.getVoxel(context.getHitVec().x - clickedPos.getX(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
+					y = te.getVoxel(context.getHitVec().y - clickedPos.getY(), null, te.pixelGrid.getSize()); //Dont pass dir for Y coordinate, its irrelevant and breaks things
+					z = te.getVoxel(context.getHitVec().z - clickedPos.getZ(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
+				}
+				
+				BlockPos camPos = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
+				
+				if (state.get(GraffitiBlock.FACING) == Direction.NORTH) {
+					processDrawingAction(te, x, y, col, textMode, camPos.offset(Direction.SOUTH), 0);
+					return ActionResultType.PASS;
+				}
+				if (state.get(GraffitiBlock.FACING) == Direction.EAST) {
+					processDrawingAction(te, z, y, col, textMode, camPos.offset(Direction.WEST), 0);
+					return ActionResultType.PASS;
+				}
+				if (state.get(GraffitiBlock.FACING) == Direction.SOUTH) {
+					processDrawingAction(te, Math.abs(x-size), y, col, textMode, camPos.offset(Direction.NORTH), 0);
+					return ActionResultType.PASS;
+				}
+				if (state.get(GraffitiBlock.FACING) == Direction.WEST) {
+					processDrawingAction(te, Math.abs(z-size), y, col, textMode, camPos.offset(Direction.EAST), 0);
+					return ActionResultType.PASS;
+				}
+				
+				Direction d = context.getPlacementHorizontalFacing();
+				
+				if (state.get(GraffitiBlock.FACING) == Direction.UP) {
+					int rot = 0;
+					if (d == Direction.NORTH) rot = 180;
+					if (d == Direction.EAST)  rot =  90;
+					if (d == Direction.WEST)  rot = 270;
+					processDrawingAction(te, x-1, z, col, textMode, camPos.offset(Direction.DOWN), rot);
+					return ActionResultType.PASS;
+				}
+				if (state.get(GraffitiBlock.FACING) == Direction.DOWN) {
+					int rot = 0;
+					if (d == Direction.EAST)  rot = 270;
+					if (d == Direction.SOUTH) rot = 180;
+					if (d == Direction.WEST)  rot =  90;
+					processDrawingAction(te, Math.abs(x-size), z, col, textMode, camPos.offset(Direction.UP), rot);
+					return ActionResultType.PASS;
+				}
+			}
 		}
 		return ActionResultType.FAIL;
 	}
@@ -156,7 +170,7 @@ public class BasicPenItem extends Item {
 				openWritingGui(te, x, y, col, rotation);
 			}
 		} else {
-			te.pixelGrid.setPixel(x, y, col.getRGB());
+			te.pixelGrid.setPixel(x, y, col.getRGB(), te);
 		}
 	}
 	
@@ -164,8 +178,23 @@ public class BasicPenItem extends Item {
 	private void openWritingGui(TileEntityGraffiti te, int x, int y, Color col, int rotation) {
 		Minecraft mc = Minecraft.getInstance();
 		mc.displayGuiScreen(new GuiWriteText(te, x, y, col.getRGB(), rotation));
-		System.out.println("4");
 	}
 	
 	
+	//Taken from item.rayTrace, modified slightly so our block can use it to get hit position.
+	public BlockRayTraceResult rayTrace(World worldIn, PlayerEntity player) {
+		return (BlockRayTraceResult) rayTrace(worldIn, player, RayTraceContext.FluidMode.NONE);
+		/*float f = player.rotationPitch;
+		float f1 = player.rotationYaw;
+		Vec3d vec3d = player.getEyePosition(1.0F);
+		float f2 = MathHelper.cos(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
+		float f3 = MathHelper.sin(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
+		float f4 = -MathHelper.cos(-f * ((float)Math.PI / 180F));
+		float f5 = MathHelper.sin(-f * ((float)Math.PI / 180F));
+		float f6 = f3 * f4;
+		float f7 = f2 * f4;
+		double d0 = player.getAttribute(PlayerEntity.REACH_DISTANCE).getValue();;
+		Vec3d vec3d1 = vec3d.add((double)f6 * d0, (double)f5 * d0, (double)f7 * d0);
+		return worldIn.rayTraceBlocks(new RayTraceContext(vec3d, vec3d1, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, player));*/
+	}
 }

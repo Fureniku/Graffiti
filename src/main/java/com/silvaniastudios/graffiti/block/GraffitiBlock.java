@@ -1,18 +1,26 @@
 package com.silvaniastudios.graffiti.block;
 
+import com.silvaniastudios.graffiti.items.BasicPenItem;
 import com.silvaniastudios.graffiti.tileentity.GraffitiTileEntityTypes;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 
 public class GraffitiBlock extends Block {
 
@@ -68,5 +76,32 @@ public class GraffitiBlock extends Block {
 			return Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 0.25D, 16.0D);
 		}
 		return Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Override //Pass click to the block it's attached to
+	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+		if (player.getHeldItem(Hand.MAIN_HAND).getItem() instanceof BasicPenItem) {
+			return ActionResultType.FAIL;
+		} else {
+			BlockPos behindPos = pos.offset(state.get(FACING));
+			BlockState behindState = worldIn.getBlockState(behindPos);
+			
+			return behindState.getBlock().onBlockActivated(behindState, worldIn, behindPos, player, handIn, hit);
+		}
+	}
+	
+	@Override
+	public void onBlockClicked(BlockState state, World worldIn, BlockPos pos, PlayerEntity player) {
+		System.out.println("left clicking!");
+		Item item = player.getHeldItem(Hand.OFF_HAND).getItem();
+		
+		if (item instanceof BasicPenItem) {
+			BasicPenItem pen = (BasicPenItem) item;
+			
+			BlockRayTraceResult result = pen.rayTrace(worldIn, player);
+			
+			pen.onItemUseSensitive(new ItemUseContext(player, Hand.OFF_HAND, result), Hand.OFF_HAND);
+		}
 	}
 }

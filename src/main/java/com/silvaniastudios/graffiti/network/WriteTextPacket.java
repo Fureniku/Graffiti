@@ -62,7 +62,6 @@ public class WriteTextPacket {
 		public static void handle(final WriteTextPacket msg, Supplier<NetworkEvent.Context> ctx) {
 			
 			ctx.get().enqueueWork(() -> {
-				System.out.println("Got packet on server");
 				World world = ctx.get().getSender().world;
 				BlockPos pos = new BlockPos(msg.blockX, msg.blockY, msg.blockZ);
 				

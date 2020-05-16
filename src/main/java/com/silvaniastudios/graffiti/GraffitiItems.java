@@ -26,5 +26,6 @@ public class GraffitiItems {
 	public static final Item BASIC_PEN_PINK = null;
 	public static final Item BASIC_PEN_BROWN = null;
 	public static final Item ERASER = null;
+	public static final Item CANVAS_EDITOR = null;
 
 }

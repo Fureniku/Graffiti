@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import com.silvaniastudios.graffiti.block.GraffitiBlock;
 import com.silvaniastudios.graffiti.items.BasicPenItem;
+import com.silvaniastudios.graffiti.items.CanvasEditorItem;
 import com.silvaniastudios.graffiti.items.EraserItem;
 import com.silvaniastudios.graffiti.items.MagicPenItem;
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
@@ -44,7 +45,8 @@ public class GraffitiEventSubscriber {
 				setup(new BasicPenItem(new Item.Properties().group(GraffitiItemGroups.GRAFFITI_ITEM_GROUP).maxStackSize(1), new Color(0xFF7F7F)), "basic_pen_pink"),
 				setup(new BasicPenItem(new Item.Properties().group(GraffitiItemGroups.GRAFFITI_ITEM_GROUP).maxStackSize(1), new Color(0x7F4E00)), "basic_pen_brown"),
 				setup(new MagicPenItem(new Item.Properties().group(GraffitiItemGroups.GRAFFITI_ITEM_GROUP).maxStackSize(1)), "magic_pen"),
-				setup(new EraserItem(new Item.Properties().group(GraffitiItemGroups.GRAFFITI_ITEM_GROUP)), "eraser")
+				setup(new EraserItem(new Item.Properties().group(GraffitiItemGroups.GRAFFITI_ITEM_GROUP).maxStackSize(1)), "eraser"),
+				setup(new CanvasEditorItem(new Item.Properties().group(GraffitiItemGroups.GRAFFITI_ITEM_GROUP).maxStackSize(1)), "canvas_editor")
 			);
 	}
 	

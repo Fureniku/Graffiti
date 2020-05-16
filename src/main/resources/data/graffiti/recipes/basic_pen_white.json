@@ -1,0 +1,79 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "pd",
+        "d "
+    ],
+    "key":
+    {
+        "d":
+		{
+            "tag": "forge:dyes/white"
+        },
+        "p": [
+		{
+            "item": "graffiti:basic_pen_black"
+        },
+		{
+            "item": "graffiti:basic_pen_dark_blue"
+        },
+		{
+            "item": "graffiti:basic_pen_dark_green"
+        },
+		{
+            "item": "graffiti:basic_pen_dark_aqua"
+        },
+		{
+            "item": "graffiti:basic_pen_dark_red"
+        },
+		{
+            "item": "graffiti:basic_pen_dark_purple"
+        },
+		{
+            "item": "graffiti:basic_pen_gold"
+        },
+		{
+            "item": "graffiti:basic_pen_gray"
+        },
+		{
+            "item": "graffiti:basic_pen_dark_gray"
+        },
+		{
+            "item": "graffiti:basic_pen_blue"
+        },
+		{
+            "item": "graffiti:basic_pen_green"
+        },
+		{
+            "item": "graffiti:basic_pen_aqua"
+        },
+		{
+            "item": "graffiti:basic_pen_red"
+        },
+		{
+            "item": "graffiti:basic_pen_light_purple"
+        },
+		{
+            "item": "graffiti:basic_pen_yellow"
+        },
+		{
+            "item": "graffiti:basic_pen_white"
+        },
+		{
+            "item": "graffiti:basic_pen_orange"
+        },
+		{
+            "item": "graffiti:basic_pen_pink"
+        },
+		{
+            "item": "graffiti:basic_pen_brown"
+        }
+		]
+    },
+    "result":
+    {
+        "item": "graffiti:basic_pen_white",
+		"count": 1
+    }
+}

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 
-public class TextDrawable {
+public class TextDrawable extends DrawableBase {
 	
 	private String text;
 	private int colour;

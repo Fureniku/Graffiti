@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "ww",
+        "ww"
+    ],
+    "key":
+    {
+        "w": {
+            "item": "minecraft:paper"
+        }
+    },
+    "result":
+    {
+        "item":"graffiti:canvas_editor",
+		"count":1
+    }
+}

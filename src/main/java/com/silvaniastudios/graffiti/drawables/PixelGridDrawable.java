@@ -1,8 +1,10 @@
 package com.silvaniastudios.graffiti.drawables;
 
+import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
+
 import net.minecraft.nbt.CompoundNBT;
 
-public class PixelGridDrawable {
+public class PixelGridDrawable extends DrawableBase {
 	
 	int size;
 	int[][] pixelArray;
@@ -31,15 +33,21 @@ public class PixelGridDrawable {
 		}
 	}
 	
-	public boolean setPixel(int x, int y, int col) {
-		y = Math.abs(y-size);
-		pixelArray[x][y] = col;
-
-		return true;
+	public boolean setPixel(int x, int y, int col, TileEntityGraffiti te) {
+		if (!te.isLocked()) {
+			y = Math.abs(y-size);
+			//Prevent a desync issue if player tries to free-draw after removing a grid
+			if (pixelArray.length < 8) {
+				return false;
+			}
+			pixelArray[x][y] = col;
+			return true;
+		}
+		return false;
 	}
 	
-	public boolean erasePixel(int x, int y) {
-		return setPixel(x, y, 0);
+	public boolean erasePixel(int x, int y, TileEntityGraffiti te) {
+		return setPixel(x, y, 0, te);
 	}
 	
 	public int getPixelRGB(int x, int y) {
@@ -56,6 +64,9 @@ public class PixelGridDrawable {
 			}
 			
 			nbt.put("pixel_grid", gridnbt);
+		} else {
+			//if grids have been removed, we need to clear them from the NBT
+			nbt.put("pixel_grid", new CompoundNBT());
 		}
 	}
 	

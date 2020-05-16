@@ -37,16 +37,16 @@ public class EraserItem extends Item {
 						int z = te.getVoxel(context.getHitVec().z - clickedPos.getZ(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
 						
 						if (state.get(GraffitiBlock.FACING) == Direction.NORTH) {
-							te.pixelGrid.erasePixel(x, y);
+							te.pixelGrid.erasePixel(x, y, te);
 						}
 						if (state.get(GraffitiBlock.FACING) == Direction.EAST) {
-							te.pixelGrid.erasePixel(z, y);
+							te.pixelGrid.erasePixel(z, y, te);
 						}
 						if (state.get(GraffitiBlock.FACING) == Direction.SOUTH) {
-							te.pixelGrid.erasePixel(Math.abs(x-16), y);
+							te.pixelGrid.erasePixel(Math.abs(x-16), y, te);
 						}
 						if (state.get(GraffitiBlock.FACING) == Direction.WEST) {
-							te.pixelGrid.erasePixel(Math.abs(z-16), y);
+							te.pixelGrid.erasePixel(Math.abs(z-16), y, te);
 						}
 						
 						return ActionResultType.PASS;

@@ -6,14 +6,22 @@ import com.silvaniastudios.graffiti.drawables.PixelGridDrawable;
 import com.silvaniastudios.graffiti.drawables.TextDrawable;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.StringTextComponent;
 
 public class TileEntityGraffiti extends TileEntity {
+	
+	boolean locked = false;
+	String lockedUuid = "";
+	ItemStack backdropBlock;
+	int alignment = 0;
 	
 	public PixelGridDrawable pixelGrid;
 	public ArrayList<TextDrawable> textList = new ArrayList<TextDrawable>();
@@ -22,9 +30,41 @@ public class TileEntityGraffiti extends TileEntity {
 		super(GraffitiTileEntityTypes.GRAFFITI);
 	}
 	
+	public boolean isLocked() {
+		return locked;
+	}
+	
+	public int getAlignment() {
+		return alignment;
+	}
+	
+	public void setAlignment(int a) {
+		if (!isLocked()) {
+			alignment = a;
+		}
+	}
+	
+	public void toggleLocked(boolean lock, PlayerEntity player) {
+		if (!this.locked && lock) {
+			this.locked = true;
+			lockedUuid = player.getCachedUniqueIdString();
+			player.sendMessage(new StringTextComponent("Editing locked"));
+		}
+		
+		if (this.locked && !lock) {
+			if (player.getCachedUniqueIdString().equalsIgnoreCase(lockedUuid)) {
+				this.locked = false;
+				lockedUuid = "";
+				player.sendMessage(new StringTextComponent("Editing unlocked"));
+			}
+		}
+	}
+	
 	public void writeText(TextDrawable text) {
-		textList.add(text);
-		update();
+		if (!locked) {
+			textList.add(text);
+			update();
+		}
 	}
 	
 	public void update() {
@@ -43,12 +83,22 @@ public class TileEntityGraffiti extends TileEntity {
 	public CompoundNBT write(CompoundNBT compound) {
 		PixelGridDrawable.serializeNBT(compound, pixelGrid);
 		TextDrawable.serializeNBT(compound, textList);
+		if (backdropBlock != null) compound.put("item", backdropBlock.serializeNBT());
+		compound.putBoolean("locked", locked);
+		compound.putString("lockedUuid", lockedUuid);
+		compound.putInt("alignment", alignment);
+		
 		return super.write(compound);
 	}
 	
 	public void read(CompoundNBT compound) {
 		pixelGrid = PixelGridDrawable.deserializeNBT(compound);
 		textList = TextDrawable.deserializeNBT(compound);
+		if (compound.contains("item")) backdropBlock = ItemStack.read(compound.getCompound("item"));
+		locked = compound.getBoolean("locked");
+		lockedUuid = compound.getString("lockedUuid");
+		alignment = compound.getInt("alignment");
+		
 		super.read(compound);
 	}
 
