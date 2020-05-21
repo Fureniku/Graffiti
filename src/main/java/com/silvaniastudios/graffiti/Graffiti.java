@@ -17,11 +17,12 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod("graffiti")
+@Mod(Graffiti.MODID)
 public class Graffiti
 {
 	
 	public static final String MODID = "graffiti";
+	public static final String VERSION = "GRADLE_VERSION";
 	// Directly reference a log4j logger.
 	private static final Logger LOGGER = LogManager.getLogger();
 

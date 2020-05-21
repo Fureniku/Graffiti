@@ -2,6 +2,7 @@ package com.silvaniastudios.graffiti.items;
 
 import com.silvaniastudios.graffiti.block.GraffitiBlock;
 import com.silvaniastudios.graffiti.client.gui.GuiCanvasEditorMain;
+import com.silvaniastudios.graffiti.file.FileExport;
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
 
 import net.minecraft.block.Block;
@@ -33,7 +34,7 @@ public class CanvasEditorItem extends Item {
 				if (world.getTileEntity(clickedPos) instanceof TileEntityGraffiti) {
 					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(clickedPos);
 					
-					openWritingGui(te);
+					openGui(te);
 				}
 			}
 		}
@@ -42,7 +43,8 @@ public class CanvasEditorItem extends Item {
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	private void openWritingGui(TileEntityGraffiti te) {
+	private void openGui(TileEntityGraffiti te) {
+		FileExport.createFile(te.pixelGrid.getPixelGrid(), te.textList, te.getAlignment(), te.getBackdropBlock());
 		Minecraft mc = Minecraft.getInstance();
 		mc.displayGuiScreen(new GuiCanvasEditorMain(te));
 	}

@@ -4,7 +4,6 @@ import java.util.function.Supplier;
 
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
 
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;

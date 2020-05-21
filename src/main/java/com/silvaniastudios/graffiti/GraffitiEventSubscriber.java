@@ -7,16 +7,22 @@ import com.silvaniastudios.graffiti.items.BasicPenItem;
 import com.silvaniastudios.graffiti.items.CanvasEditorItem;
 import com.silvaniastudios.graffiti.items.EraserItem;
 import com.silvaniastudios.graffiti.items.MagicPenItem;
+import com.silvaniastudios.graffiti.tileentity.ContainerGraffiti;
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.network.IContainerFactory;
+import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 @EventBusSubscriber(modid = Graffiti.MODID, bus = EventBusSubscriber.Bus.MOD)
@@ -62,6 +68,19 @@ public class GraffitiEventSubscriber {
 		event.getRegistry().registerAll(
 				setup(TileEntityType.Builder.create(TileEntityGraffiti::new, GraffitiBlocks.GRAFFITI).build(null), "graffiti")
 			);
+	}
+	
+	@SubscribeEvent
+	public static void onContainerRegistry(RegistryEvent.Register<ContainerType<?>> event) {
+		IForgeRegistry<ContainerType<?>> registry = event.getRegistry();
+		
+		registry.register(new ContainerType<ContainerGraffiti>(new IContainerFactory<ContainerGraffiti>() {
+			
+			@Override
+			public ContainerGraffiti create(int id, PlayerInventory inv, PacketBuffer pkt) {
+				return new ContainerGraffiti(id, inv);
+			}
+		}).setRegistryName(new ResourceLocation(Graffiti.MODID, "container_graffiti")));
 	}
 	
 	public static <T extends IForgeRegistryEntry<T>> T setup(final T entry, final String name) {

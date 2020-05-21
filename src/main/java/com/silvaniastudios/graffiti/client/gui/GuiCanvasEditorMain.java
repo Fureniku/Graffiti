@@ -126,7 +126,7 @@ public class GuiCanvasEditorMain extends GuiCanvasEditorBase {
 		//RenderHelper.setupGuiFlatDiffuseLighting();
 		this.renderBackground();
 		
-		
+		drawGraffiti();
 		
 		if (tileEntity.pixelGrid != null && tileEntity.pixelGrid.getSize() > 0) {
 			this.drawCenteredString(this.font, "Pixel Grid: " + tileEntity.pixelGrid.getSize(), this.width / 2 + 66, this.height / 2 - 48, 4210752);

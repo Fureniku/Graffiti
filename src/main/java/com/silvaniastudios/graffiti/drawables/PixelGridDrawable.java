@@ -18,6 +18,10 @@ public class PixelGridDrawable extends DrawableBase {
 		return size;
 	}
 	
+	public int[][] getPixelGrid() {
+		return pixelArray;
+	}
+	
 	//Never naturally used, but this way I can easily view a grid in the console if I need to.
 	public void debugArray() {
 		for (int i = 0; i < size; i++) {

@@ -6,6 +6,7 @@ import com.silvaniastudios.graffiti.drawables.PixelGridDrawable;
 import com.silvaniastudios.graffiti.drawables.TextDrawable;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -83,7 +84,7 @@ public class TileEntityGraffiti extends TileEntity {
 	public CompoundNBT write(CompoundNBT compound) {
 		PixelGridDrawable.serializeNBT(compound, pixelGrid);
 		TextDrawable.serializeNBT(compound, textList);
-		if (backdropBlock != null) compound.put("item", backdropBlock.serializeNBT());
+		if (getBackdropBlock() != null) compound.put("item", getBackdropBlock().serializeNBT());
 		compound.putBoolean("locked", locked);
 		compound.putString("lockedUuid", lockedUuid);
 		compound.putInt("alignment", alignment);
@@ -139,5 +140,9 @@ public class TileEntityGraffiti extends TileEntity {
 		super.onDataPacket(net, pkt);
 		this.read(pkt.getNbtCompound());
 		this.getWorld().notifyBlockUpdate(this.pos, this.getState(), this.getState(), 3);
+	}
+
+	public ItemStack getBackdropBlock() {
+		return new ItemStack(Blocks.COBBLESTONE);
 	}
 }
