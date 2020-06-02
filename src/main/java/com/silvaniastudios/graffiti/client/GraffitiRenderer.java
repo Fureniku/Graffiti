@@ -33,6 +33,12 @@ public class GraffitiRenderer extends TileEntityRenderer<TileEntityGraffiti> {
 		FontRenderer fontrenderer = this.renderDispatcher.getFontRenderer();
 		BlockState state = tileEntityIn.getWorld().getBlockState(tileEntityIn.getPos());
 		
+		float offset = (1F/64F);
+		
+		if (tileEntityIn.getAlignment() == 1) {
+			offset = 0;
+		}
+		
 		if (tileEntityIn.pixelGrid != null) {
 			float p = 1.0F/tileEntityIn.pixelGrid.getSize();
 			for (int i = 0; i < tileEntityIn.pixelGrid.getSize(); i++) {
@@ -40,7 +46,7 @@ public class GraffitiRenderer extends TileEntityRenderer<TileEntityGraffiti> {
 					int rgb = tileEntityIn.pixelGrid.getPixelRGB(j, i);
 					if (rgb != 0) {
 						RenderHelper.renderSinglePixel(state.get(GraffitiBlock.FACING), matrixStack, combinedLightIn, vertexBuilderBlockQuads, 
-								j*p, i*p, new Color(rgb), tileEntityIn.pixelGrid.getSize());
+								j*p, i*p, new Color(rgb), offset, tileEntityIn.pixelGrid.getSize());
 					}
 				}
 			}
@@ -50,7 +56,9 @@ public class GraffitiRenderer extends TileEntityRenderer<TileEntityGraffiti> {
 			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
 				TextDrawable text = tileEntityIn.textList.get(i);
 				
-				RenderHelper.renderTextNorthSouth(text, matrixStack, fontrenderer, buffer, combinedLightIn, true);
+				
+				
+				RenderHelper.renderTextNorthSouth(text, matrixStack, fontrenderer, buffer, combinedLightIn, offset, true);
 				//RenderHelper.renderText(text, matrixStack, fontrenderer, buffer, combinedLightIn, 180, 0.0D, 1.0D, 1D/64D);
 			}
 		}
@@ -59,7 +67,7 @@ public class GraffitiRenderer extends TileEntityRenderer<TileEntityGraffiti> {
 			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
 				TextDrawable text = tileEntityIn.textList.get(i);
 				
-				RenderHelper.renderTextEastWest(text, matrixStack, fontrenderer, buffer, combinedLightIn, true);
+				RenderHelper.renderTextEastWest(text, matrixStack, fontrenderer, buffer, combinedLightIn, offset, true);
 				//RenderHelper.renderText(text, matrixStack, fontrenderer, buffer, combinedLightIn, 270, 1.0D, 1.0D, 1D/64D);
 			}
 		}
@@ -68,7 +76,7 @@ public class GraffitiRenderer extends TileEntityRenderer<TileEntityGraffiti> {
 			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
 				TextDrawable text = tileEntityIn.textList.get(i);
 				
-				RenderHelper.renderTextNorthSouth(text, matrixStack, fontrenderer, buffer, combinedLightIn, false);
+				RenderHelper.renderTextNorthSouth(text, matrixStack, fontrenderer, buffer, combinedLightIn, offset, false);
 				//RenderHelper.renderText(text, matrixStack, fontrenderer, buffer, combinedLightIn, 0, 1.0D, 1.0D, 1 - (1D/64D));
 			}
 		}
@@ -77,7 +85,7 @@ public class GraffitiRenderer extends TileEntityRenderer<TileEntityGraffiti> {
 			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
 				TextDrawable text = tileEntityIn.textList.get(i);
 				
-				RenderHelper.renderTextEastWest(text, matrixStack, fontrenderer, buffer, combinedLightIn, false);
+				RenderHelper.renderTextEastWest(text, matrixStack, fontrenderer, buffer, combinedLightIn, offset, false);
 				//RenderHelper.renderText(text, matrixStack, fontrenderer, buffer, combinedLightIn, 90, 0.0D, 1.0D, 1 - (1D/64D));
 			}
 		}
@@ -86,7 +94,7 @@ public class GraffitiRenderer extends TileEntityRenderer<TileEntityGraffiti> {
 			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
 				TextDrawable text = tileEntityIn.textList.get(i);
 				
-				RenderHelper.renderTextUpDown(text, matrixStack, fontrenderer, buffer, combinedLightIn, true);
+				RenderHelper.renderTextUpDown(text, matrixStack, fontrenderer, buffer, combinedLightIn, offset, true);
 			}
 		}
 		
@@ -94,7 +102,7 @@ public class GraffitiRenderer extends TileEntityRenderer<TileEntityGraffiti> {
 			for (int i = 0; i < tileEntityIn.textList.size(); i++) {
 				TextDrawable text = tileEntityIn.textList.get(i);
 				
-				RenderHelper.renderTextUpDown(text, matrixStack, fontrenderer, buffer, combinedLightIn, false);
+				RenderHelper.renderTextUpDown(text, matrixStack, fontrenderer, buffer, combinedLightIn, offset, false);
 			}
 		}
 	}

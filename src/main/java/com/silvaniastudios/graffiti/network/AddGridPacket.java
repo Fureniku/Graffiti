@@ -51,7 +51,7 @@ public class AddGridPacket {
 				if (world.getTileEntity(pos) instanceof TileEntityGraffiti) {
 					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(pos);
 					if (!te.isLocked()) {
-						if (te.pixelGrid == null) {
+						if (te.pixelGrid == null || te.pixelGrid.getSize() == 0) {
 							if (msg.size == 16 || msg.size == 32 || msg.size == 64 || msg.size == 128) {
 								te.pixelGrid = new PixelGridDrawable(msg.size);
 								te.update();

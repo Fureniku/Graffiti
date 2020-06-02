@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern":
+    [
+        "w ",
+        " s"
+    ],
+    "key":
+    {
+        "w": {
+            "item": "minecraft:paper"
+        },
+        "s": {
+            "item": "minecraft:stick"
+        }
+    },
+    "result":
+    {
+        "item":"graffiti:eraser",
+		"count":1
+    }
+}

@@ -33,7 +33,7 @@ public class EraserItem extends Item {
 					
 					if (te.pixelGrid != null) {
 						int x = te.getVoxel(context.getHitVec().x - clickedPos.getX(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
-						int y = te.getVoxel(context.getHitVec().y - clickedPos.getY(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
+						int y = te.getVoxel(context.getHitVec().y - clickedPos.getY(), null, te.pixelGrid.getSize());
 						int z = te.getVoxel(context.getHitVec().z - clickedPos.getZ(), state.get(GraffitiBlock.FACING), te.pixelGrid.getSize());
 						
 						if (state.get(GraffitiBlock.FACING) == Direction.NORTH) {

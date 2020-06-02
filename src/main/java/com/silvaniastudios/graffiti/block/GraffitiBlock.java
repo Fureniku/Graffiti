@@ -50,11 +50,6 @@ public class GraffitiBlock extends Block {
 	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
 		return createVoxelShape(state);
 	}
-
-	@Override
-	public VoxelShape getCollisionShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-		return createVoxelShape(state);
-	}
 	
 	private VoxelShape createVoxelShape(BlockState state) {
 		if (state.get(FACING) == Direction.NORTH) {

@@ -13,14 +13,18 @@ public class TextDrawable extends DrawableBase {
 	private int yPos;
 	private float scale;
 	private int rotation;
+	private String format;
+	private int alignment; //0 = left, 1 = centre, 2 = right
 	
-	public TextDrawable(String txt, int x, int y, int col, float scale, int rot) {
+	public TextDrawable(String txt, int x, int y, int col, float scale, int rot, String format, int alignment) {
 		this.text = txt;
 		this.colour = col;
 		this.xPos = x;
 		this.yPos = y;
 		this.scale = scale;
 		this.rotation = rot;
+		this.format = format;
+		this.alignment = alignment;
 	}
 	
 	public String getText() {
@@ -46,6 +50,18 @@ public class TextDrawable extends DrawableBase {
 	public int getRotation() {
 		return rotation;
 	}
+	
+	public String getFormat() {
+		return format;
+	}
+	
+	public int getAlignment() {
+		return alignment;
+	}
+	
+	public String getDrawableText() {
+		return format + text;
+	}
 
 	public static CompoundNBT serializeNBT(CompoundNBT nbt, ArrayList<TextDrawable> textList) {
 		ListNBT listnbt = new ListNBT();
@@ -59,6 +75,8 @@ public class TextDrawable extends DrawableBase {
 			textnbt.putInt("yPos", t.yPos);
 			textnbt.putFloat("scale", t.scale);
 			textnbt.putInt("rotation", t.rotation);
+			textnbt.putString("format", t.format);
+			textnbt.putInt("alignment", t.alignment);
 			
 			listnbt.add(textnbt);
 		}
@@ -81,8 +99,9 @@ public class TextDrawable extends DrawableBase {
 				int yPos = textnbt.getInt("yPos");
 				float scale = textnbt.getFloat("scale");
 				int rot = textnbt.getInt("rotation");
-				
-				textList.add(new TextDrawable(text, xPos, yPos, colour, scale, rot));
+				String format = textnbt.getString("format");
+				int alignment = textnbt.getInt("alignment");
+				textList.add(new TextDrawable(text, xPos, yPos, colour, scale, rot, format, alignment));
 			}
 		}
 		return textList;

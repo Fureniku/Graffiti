@@ -21,8 +21,10 @@ public class WriteTextPacket {
 	float scale;
 	int col;
 	int rot;
+	String format;
+	int alignment;
 	
-	public WriteTextPacket(String text, BlockPos pos, int x, int y, float scale, int col, int rot) {
+	public WriteTextPacket(String text, BlockPos pos, int x, int y, float scale, int col, int rot, String format, int alignment) {
 		this.text = text;
 		this.blockX = pos.getX();
 		this.blockY = pos.getY();
@@ -32,6 +34,8 @@ public class WriteTextPacket {
 		this.scale = scale;
 		this.col = col;
 		this.rot = rot;
+		this.format = format;
+		this.alignment = alignment;
 	}
 	
 	public static void encode(WriteTextPacket pkt, PacketBuffer buf) {
@@ -46,6 +50,9 @@ public class WriteTextPacket {
 		buf.writeFloat(pkt.scale);
 		buf.writeInt(pkt.col);
 		buf.writeInt(pkt.rot);
+		
+		buf.writeString(pkt.format);
+		buf.writeInt(pkt.alignment);
 	}
 	
 	public static WriteTextPacket decode(PacketBuffer buf) {
@@ -55,7 +62,9 @@ public class WriteTextPacket {
 				buf.readInt(),  //posY
 				buf.readFloat(), //scale
 				buf.readInt(),  //colour
-				buf.readInt()); //rotation
+				buf.readInt(), //rotation
+				buf.readString(10), //format
+				buf.readInt()); //alignment
 	}
 	
 	public static class Handler {
@@ -68,7 +77,7 @@ public class WriteTextPacket {
 				if (world.getTileEntity(pos) instanceof TileEntityGraffiti) {
 					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(pos);
 					
-					te.writeText(new TextDrawable(msg.text, msg.posX, msg.posY, msg.col, msg.scale, msg.rot));
+					te.writeText(new TextDrawable(msg.text, msg.posX, msg.posY, msg.col, msg.scale, msg.rot, msg.format, msg.alignment));
 				}
 			});
 			

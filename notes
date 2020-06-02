@@ -1,0 +1,90 @@
+BUGS:
+- text AO is different to pixel AO
+
+Release 2:
+	erasing text
+	lock edit
+	graffiti-proof blocks
+	some way to actually choose scale etc - canvas editor?
+
+Release 3:
+	cloning
+	Editor block w/ GUI
+
+Release 4:
+	text scaling
+	premade shapes
+
+Release 5:
+
+Release 6:
+	importing/exporting website
+
+Other objectives:
+- Left-clicking with pen in offhand should work just like right-click with mainhand
+
+Goals for fully editable artblock:
+- One pixelgrid (16/32/64/128x)
+- One backdrop block (panel behind everything taking an existing block's texture)
+- List of text objects
+- List of drawn objects
+- List of item/blocks drawn
+- Bool for each layer for fullbright texture
+
+- Option for position (64th extruded, flush with block, attach to block)
+- Bool for edit lock
+
+Canvas Editor UI. Tab for each options:
+- Overall block properties (position, backdrop item)
+	- Position
+	- Backdrop item
+	- Lock/unlock
+	- Pixel grid
+	- Right click option
+- Texts
+	- Edit a text item object when selected from list
+	- Remove object
+	- Add new object
+- Icons
+	- Edit a text item object when selected from list
+	- Remove object
+	- Add new object
+- Item/Blocks
+	- Edit a text item object when selected from list
+	- Remove object
+	- Add new object
+
+Changelog:
+	- UI improvements:
+		- The grid will now display what's drawn on your block
+		- Options will correctly update to server-side changes (such as grid status)
+		- Added an export button (see below)
+		- The GUI is still not final! It's just a bit more usable as a temporary solution.
+		- Text drawing position should now be a bit more accurate
+	- Fixed crash when trying to backspace text when there is no text
+	- Started on the import/export system. Only exporting is done so far, but I've implemented it into the game now so you can start saving your art straight away.
+	I can't absolutely 100% promise the art exported right now will be importable in the future, due to changes I may make - but I'll try and keep it compatable.
+	- Floating graffiti blocks no longer provide collision. When backdrops are added, a backdrop will cause collisions.
+	- Fixed eraser offseting incorrectly by 1 pixel vertically
+	- Fixed eraser missing its crafting recipe
+	- Added text formatting options (bold, italic, underline and strikeout)
+	- Implemented one alignment option (you can now set graffiti to sit slightly away from a block, or flush with a block)
+
+Caveats:
+	- UI is still work in progress and may not be as clean as it should be.
+	- Recipes aren't working ideally (they aren't shapeless for pen recolouring, and the base pen only accepts white wool. Blame the recipe system, it'll just take a bit of time to fix)
+	- For reasons unknown, underline and strikeout formatting isn't always rendering in the UI (but occasionally does). It'll still render in world just fine though.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

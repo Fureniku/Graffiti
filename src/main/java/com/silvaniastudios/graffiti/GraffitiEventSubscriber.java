@@ -59,7 +59,7 @@ public class GraffitiEventSubscriber {
 	@SubscribeEvent
 	public static void onRegisterBlocks(final RegistryEvent.Register<Block> event) {
 		event.getRegistry().registerAll(
-				setup(new GraffitiBlock(Block.Properties.create(Material.ROCK).hardnessAndResistance(3.0F).notSolid()), "graffiti")
+				setup(new GraffitiBlock(Block.Properties.create(Material.ROCK).hardnessAndResistance(3.0F).notSolid().doesNotBlockMovement()), "graffiti")
 			);
 	}
 	
@@ -68,19 +68,6 @@ public class GraffitiEventSubscriber {
 		event.getRegistry().registerAll(
 				setup(TileEntityType.Builder.create(TileEntityGraffiti::new, GraffitiBlocks.GRAFFITI).build(null), "graffiti")
 			);
-	}
-	
-	@SubscribeEvent
-	public static void onContainerRegistry(RegistryEvent.Register<ContainerType<?>> event) {
-		IForgeRegistry<ContainerType<?>> registry = event.getRegistry();
-		
-		registry.register(new ContainerType<ContainerGraffiti>(new IContainerFactory<ContainerGraffiti>() {
-			
-			@Override
-			public ContainerGraffiti create(int id, PlayerInventory inv, PacketBuffer pkt) {
-				return new ContainerGraffiti(id, inv);
-			}
-		}).setRegistryName(new ResourceLocation(Graffiti.MODID, "container_graffiti")));
 	}
 	
 	public static <T extends IForgeRegistryEntry<T>> T setup(final T entry, final String name) {

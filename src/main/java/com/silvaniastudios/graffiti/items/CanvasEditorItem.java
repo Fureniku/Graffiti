@@ -1,20 +1,17 @@
 package com.silvaniastudios.graffiti.items;
 
 import com.silvaniastudios.graffiti.block.GraffitiBlock;
-import com.silvaniastudios.graffiti.client.gui.GuiCanvasEditorMain;
-import com.silvaniastudios.graffiti.file.FileExport;
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 public class CanvasEditorItem extends Item {
 
@@ -26,7 +23,7 @@ public class CanvasEditorItem extends Item {
 	public ActionResultType onItemUse(ItemUseContext context) {
 		World world = context.getWorld();
 		
-		if (context.getHand() == Hand.MAIN_HAND && world.isRemote) {
+		if (context.getHand() == Hand.MAIN_HAND && !world.isRemote) {
 			BlockPos clickedPos = context.getPos();
 			Block clickedBlock = world.getBlockState(clickedPos).getBlock();
 			
@@ -34,7 +31,7 @@ public class CanvasEditorItem extends Item {
 				if (world.getTileEntity(clickedPos) instanceof TileEntityGraffiti) {
 					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(clickedPos);
 					
-					openGui(te);
+					NetworkHooks.openGui((ServerPlayerEntity) context.getPlayer(), te, context.getPos());
 				}
 			}
 		}
@@ -42,10 +39,5 @@ public class CanvasEditorItem extends Item {
 		return super.onItemUse(context);
 	}
 	
-	@OnlyIn(Dist.CLIENT)
-	private void openGui(TileEntityGraffiti te) {
-		FileExport.createFile(te.pixelGrid.getPixelGrid(), te.textList, te.getAlignment(), te.getBackdropBlock());
-		Minecraft mc = Minecraft.getInstance();
-		mc.displayGuiScreen(new GuiCanvasEditorMain(te));
-	}
+
 }

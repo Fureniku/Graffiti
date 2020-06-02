@@ -8,6 +8,9 @@ import com.silvaniastudios.graffiti.drawables.TextDrawable;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -15,9 +18,11 @@ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
-public class TileEntityGraffiti extends TileEntity {
+public class TileEntityGraffiti extends TileEntity implements INamedContainerProvider {
 	
 	boolean locked = false;
 	String lockedUuid = "";
@@ -102,6 +107,10 @@ public class TileEntityGraffiti extends TileEntity {
 		
 		super.read(compound);
 	}
+	
+	protected Container createMenu(int id, PlayerInventory player) {
+		return new ContainerGraffiti(id, player, this);
+	}
 
 	public BlockState getState() { 
 		return world.getBlockState(pos);
@@ -144,5 +153,15 @@ public class TileEntityGraffiti extends TileEntity {
 
 	public ItemStack getBackdropBlock() {
 		return new ItemStack(Blocks.COBBLESTONE);
+	}
+
+	@Override
+	public Container createMenu(int id, PlayerInventory inv, PlayerEntity player) {
+		return new ContainerGraffiti(id, inv, this);
+	}
+
+	@Override
+	public ITextComponent getDisplayName() {
+		return new TranslationTextComponent("container.graffiti");
 	}
 }

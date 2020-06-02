@@ -1,37 +1,49 @@
 package com.silvaniastudios.graffiti.client.gui;
 
+import org.lwjgl.opengl.GL11;
+
 import com.silvaniastudios.graffiti.Graffiti;
 import com.silvaniastudios.graffiti.drawables.PixelGridDrawable;
 import com.silvaniastudios.graffiti.drawables.TextDrawable;
+import com.silvaniastudios.graffiti.tileentity.ContainerGraffiti;
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
 
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.ITextComponent;
 
-public class GuiCanvasEditorBase extends Screen {
+public class GuiCanvasEditorBase extends ContainerScreen<ContainerGraffiti> {
 	
 	protected TileEntityGraffiti tileEntity;
 	
-	private int xSize = 256;
-	private int ySize = 248;
-	
 	private static final ResourceLocation TEXTURE = new ResourceLocation(Graffiti.MODID, "textures/gui/canvas_editor.png");
 
-	public GuiCanvasEditorBase(TileEntityGraffiti te) {
-		super(new TranslationTextComponent("graffiti.write"));
+	public GuiCanvasEditorBase(ContainerGraffiti container, PlayerInventory inv, ITextComponent text) {
+		super(container, inv, text);
 
-		tileEntity = te;
+		tileEntity = container.te;
+		
+		this.xSize = 256;
+		this.ySize = 256;
+	}
+	
+	@Override
+	public void render(int x, int y, float partialTick) {
+		this.renderBackground();
+		super.render(x, y, partialTick);
+		this.renderHoveredToolTip(x, y);
 	}
 
 	@Override
 	protected void init() {
 		this.minecraft.keyboardListener.enableRepeatEvents(true);
+		super.init();
 	}
 	
 	@Override
-	public void renderBackground(int rb_1_) {
+	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		this.minecraft.getTextureManager().bindTexture(TEXTURE);
 		int i = (this.width - this.xSize) / 2;
 		int j = (this.height - this.ySize) / 2;
@@ -40,10 +52,11 @@ public class GuiCanvasEditorBase extends Screen {
 		int startX = (this.width / 2) - (this.xSize / 2) + 11;
 		int startY = (this.height / 2) - (this.ySize / 2) + 11;
 		
-		int texture = tileEntity.pixelGrid.getSize();
-		if (tileEntity.pixelGrid.getSize() == 16)  texture = 0; 
-		if (tileEntity.pixelGrid.getSize() == 128) texture = 96; 
-		
+		int texture = tileEntity.pixelGrid == null ? 0 : tileEntity.pixelGrid.getSize();
+		if (tileEntity.pixelGrid != null) {
+			if (tileEntity.pixelGrid.getSize() == 16)  texture = 0; 
+			if (tileEntity.pixelGrid.getSize() == 128) texture = 96; 
+		}
 		
 		this.blit(startX, startY, 11+texture, 11, 32, 128);
 		this.blit(startX+32, startY, 11+texture, 11, 32, 128);
@@ -57,29 +70,34 @@ public class GuiCanvasEditorBase extends Screen {
 	}
 	
 	public void drawGraffiti() {
-		int startX = (this.width / 2) - (this.xSize / 2) + 11;
-		int startY = (this.height / 2) - (this.ySize / 2) + 11;
+		int startX = 11;
+		int startY = 11;
 		
 		PixelGridDrawable grid = tileEntity.pixelGrid;
-		int size = 8;
-		if (grid.getSize() == 32) {
-			size = 4;
-		} else if (grid.getSize() == 64) {
-			size = 2;
-		} else if (grid.getSize() == 128) {
-			size = 1;
-		}
-		
-		for (int i = 0; i < grid.getSize(); i++) {
-			for (int j = 0; j < grid.getSize(); j++) {
-				this.fillGradient(startX + (j*size), startY + (i*size), startX + (j*size)+size, startY + (i*size)+size, grid.getPixelRGB(j, i), grid.getPixelRGB(j, i));
-				//this.blit(startX + (j*size), startY + (i*size), 0, 248, size, size);
+		if (grid != null && grid.getSize() > 0) {
+			int size = 8;
+			if (grid.getSize() == 32) {
+				size = 4;
+			} else if (grid.getSize() == 64) {
+				size = 2;
+			} else if (grid.getSize() == 128) {
+				size = 1;
+			}
+			
+			for (int i = 0; i < grid.getSize(); i++) {
+				for (int j = 0; j < grid.getSize(); j++) {
+					this.fillGradient(startX + (j*size), startY + (i*size), startX + (j*size)+size, startY + (i*size)+size, grid.getPixelRGB(j, i), grid.getPixelRGB(j, i));
+				}
 			}
 		}
 		
 		for (int i = 0; i < tileEntity.textList.size(); i++) {
 			TextDrawable text = tileEntity.textList.get(i);
-			this.font.drawString(text.getText(), startX + (text.xPos()*2), startY + Math.abs((text.yPos()*2)-128), text.getCol());
+			GL11.glPushMatrix();
+			GL11.glScaled(2F, 2F, 2F);
+			this.font.drawString(text.getText(), (startX + (text.xPos()*2))/2, (startY + Math.abs((text.yPos()*2)-128))/2, text.getCol());
+			GL11.glScaled(0.5F, 0.5F, 0.5F);
+			GL11.glPopMatrix();
 		}
 	}
 }
