@@ -18,8 +18,7 @@ public class GraffitiPacketHandler {
 		
 		INSTANCE.registerMessage(packet_id++, WriteTextPacket.class, WriteTextPacket::encode, WriteTextPacket::decode, WriteTextPacket.Handler::handle);
 		INSTANCE.registerMessage(packet_id++, SetPositionPacket.class, SetPositionPacket::encode, SetPositionPacket::decode, SetPositionPacket.Handler::handle);
-		INSTANCE.registerMessage(packet_id++, RemoveGridPacket.class, RemoveGridPacket::encode, RemoveGridPacket::decode, RemoveGridPacket.Handler::handle); //remove a drawing grid from a graffiti block
-		INSTANCE.registerMessage(packet_id++, AddGridPacket.class, AddGridPacket::encode, AddGridPacket::decode, AddGridPacket.Handler::handle); //add a new drawing grid to a graffiti block
+		INSTANCE.registerMessage(packet_id++, ModifyGridPacket.class, ModifyGridPacket::encode, ModifyGridPacket::decode, ModifyGridPacket.Handler::handle); //add a new drawing grid to a graffiti block
 		INSTANCE.registerMessage(packet_id++, LockEditPacket.class, LockEditPacket::encode, LockEditPacket::decode, LockEditPacket.Handler::handle);
 	}
 }

@@ -8,10 +8,18 @@ public class PixelGridDrawable extends DrawableBase {
 	
 	int size;
 	int[][] pixelArray;
+	int positionId = 0;
+	double positionOffset = 0;
+	int transparency = 255;
 	
 	public PixelGridDrawable(int size) {
 		this.size = size;
 		this.pixelArray = new int[size][size];
+	}
+	
+	public PixelGridDrawable(int[][] grid) {
+		this.size = grid.length;
+		this.pixelArray = grid;
 	}
 
 	public int getSize() {
@@ -20,6 +28,19 @@ public class PixelGridDrawable extends DrawableBase {
 	
 	public int[][] getPixelGrid() {
 		return pixelArray;
+	}
+	
+	public void setNewGrid(int size, int[][] grid) {
+		this.size = size;
+		this.pixelArray = grid;
+	}
+	
+	public int getTransparency() {
+		return transparency;
+	}
+	
+	public void setTransparency(int t) {
+		this.transparency = t;
 	}
 	
 	//Never naturally used, but this way I can easily view a grid in the console if I need to.
@@ -61,6 +82,7 @@ public class PixelGridDrawable extends DrawableBase {
 	public static void serializeNBT(CompoundNBT nbt, PixelGridDrawable pixels) {
 		if (pixels != null) {
 			CompoundNBT gridnbt = new CompoundNBT();
+			pixels.size = pixels.getPixelGrid().length;
 			gridnbt.putInt("size", pixels.size);
 			
 			for (int i = 0; i < pixels.size; i++) {

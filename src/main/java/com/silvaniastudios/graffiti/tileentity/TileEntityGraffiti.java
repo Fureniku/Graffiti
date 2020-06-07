@@ -27,7 +27,9 @@ public class TileEntityGraffiti extends TileEntity implements INamedContainerPro
 	boolean locked = false;
 	String lockedUuid = "";
 	ItemStack backdropBlock;
-	int alignment = 0;
+	double alignmentOffset = 0.015625; // 1/64, to avoid z-fighting
+	
+	boolean offsetIntoBlock = false;
 	
 	public PixelGridDrawable pixelGrid;
 	public ArrayList<TextDrawable> textList = new ArrayList<TextDrawable>();
@@ -40,13 +42,18 @@ public class TileEntityGraffiti extends TileEntity implements INamedContainerPro
 		return locked;
 	}
 	
-	public int getAlignment() {
-		return alignment;
+	public double getAlignment() {
+		return alignmentOffset;
 	}
 	
-	public void setAlignment(int a) {
+	public boolean isOffsetIntoBlock() {
+		return offsetIntoBlock;
+	}
+	
+	public void setAlignment(boolean offset, double offsetAmt) {
 		if (!isLocked()) {
-			alignment = a;
+			alignmentOffset = offsetAmt;
+			offsetIntoBlock = offset;
 		}
 	}
 	
@@ -92,7 +99,9 @@ public class TileEntityGraffiti extends TileEntity implements INamedContainerPro
 		if (getBackdropBlock() != null) compound.put("item", getBackdropBlock().serializeNBT());
 		compound.putBoolean("locked", locked);
 		compound.putString("lockedUuid", lockedUuid);
-		compound.putInt("alignment", alignment);
+		compound.putDouble("alignmentOffset", alignmentOffset);
+		
+		compound.putBoolean("offsetIntoBlock", offsetIntoBlock);
 		
 		return super.write(compound);
 	}
@@ -103,7 +112,9 @@ public class TileEntityGraffiti extends TileEntity implements INamedContainerPro
 		if (compound.contains("item")) backdropBlock = ItemStack.read(compound.getCompound("item"));
 		locked = compound.getBoolean("locked");
 		lockedUuid = compound.getString("lockedUuid");
-		alignment = compound.getInt("alignment");
+		
+		if (compound.contains("alignmentOffset")) { alignmentOffset = compound.getDouble("alignmentOffset"); }
+		if (compound.contains("offsetIntoBlock")) { offsetIntoBlock = compound.getBoolean("offsetIntoBlock"); }
 		
 		super.read(compound);
 	}

@@ -1,4 +1,4 @@
-package com.silvaniastudios.graffiti.file;
+package com.silvaniastudios.graffiti.util;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -24,9 +24,9 @@ import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 
 public class FileExport {
 	
-	public static final int JSON_VERSION = 1;
+	public static final int JSON_VERSION = 2;
 	
-	public static StringTextComponent createFile(String fileName, PixelGridDrawable pixelGrid, ArrayList<TextDrawable> textList, int alignment) {
+	public static StringTextComponent createFile(String fileName, PixelGridDrawable pixelGrid, ArrayList<TextDrawable> textList, double alignment) {
 		File dir = new File("./graffiti/");
 		
 		if (!dir.exists()) {
@@ -38,6 +38,7 @@ public class FileExport {
 		JsonArray gridArray = new JsonArray();
 		JsonArray textObjectArray = new JsonArray();
 		JsonArray drawableArray = new JsonArray();
+		
 		
 		for (int i = 0; i < grid.length; i++) {
 			JsonArray subArray = new JsonArray();
@@ -78,6 +79,8 @@ public class FileExport {
 		    json.add("alignment", new JsonPrimitive(alignment));
 		    json.add("texts", textObjectArray);
 		    json.add("drawables", drawableArray);
+		    json.add("grid_transparency", new JsonPrimitive(pixelGrid.getTransparency()));
+		    json.add("grid_scale", new JsonPrimitive(pixelGrid.getSize()));
 		    json.add("grid", gridArray);
 		    
 		    gson.toJson(json, writer);

@@ -26,7 +26,7 @@ public class GuiCanvasEditorBase extends ContainerScreen<ContainerGraffiti> {
 		tileEntity = container.te;
 		
 		this.xSize = 256;
-		this.ySize = 256;
+		this.ySize = 248;
 	}
 	
 	@Override
@@ -49,8 +49,8 @@ public class GuiCanvasEditorBase extends ContainerScreen<ContainerGraffiti> {
 		int j = (this.height - this.ySize) / 2;
 		this.blit(i, j, 0, 0, this.xSize, this.ySize);
 		
-		int startX = (this.width / 2) - (this.xSize / 2) + 11;
-		int startY = (this.height / 2) - (this.ySize / 2) + 11;
+		int startX = (this.width / 2) - (this.xSize / 2) + 8;
+		int startY = (this.height / 2) - (this.ySize / 2) + 8;
 		
 		int texture = tileEntity.pixelGrid == null ? 0 : tileEntity.pixelGrid.getSize();
 		if (tileEntity.pixelGrid != null) {
@@ -58,10 +58,10 @@ public class GuiCanvasEditorBase extends ContainerScreen<ContainerGraffiti> {
 			if (tileEntity.pixelGrid.getSize() == 128) texture = 96; 
 		}
 		
-		this.blit(startX, startY, 11+texture, 11, 32, 128);
-		this.blit(startX+32, startY, 11+texture, 11, 32, 128);
-		this.blit(startX+64, startY, 11+texture, 11, 32, 128);
-		this.blit(startX+96, startY, 11+texture, 11, 32, 128);
+		this.blit(startX, startY, 8+texture, 8, 32, 128);
+		this.blit(startX+32, startY, 8+texture, 8, 32, 128);
+		this.blit(startX+64, startY, 8+texture, 8, 32, 128);
+		this.blit(startX+96, startY, 8+texture, 8, 32, 128);
 	}
 	
 	@Override //we dont like shadows!
@@ -69,12 +69,11 @@ public class GuiCanvasEditorBase extends ContainerScreen<ContainerGraffiti> {
 		p_drawCenteredString_1_.drawString(p_drawCenteredString_2_, (float)(p_drawCenteredString_3_ - p_drawCenteredString_1_.getStringWidth(p_drawCenteredString_2_) / 2), (float)p_drawCenteredString_4_, p_drawCenteredString_5_);
 	}
 	
-	public void drawGraffiti() {
-		int startX = 11;
-		int startY = 11;
+	public void drawGraffiti(PixelGridDrawable grid, boolean drawGrid, boolean drawText) {
+		int startX = ((this.width - this.xSize) / 2) + 8;
+		int startY = ((this.height - this.ySize) / 2) + 8;
 		
-		PixelGridDrawable grid = tileEntity.pixelGrid;
-		if (grid != null && grid.getSize() > 0) {
+		if (drawGrid && grid != null && grid.getSize() > 0) {
 			int size = 8;
 			if (grid.getSize() == 32) {
 				size = 4;
@@ -91,13 +90,17 @@ public class GuiCanvasEditorBase extends ContainerScreen<ContainerGraffiti> {
 			}
 		}
 		
-		for (int i = 0; i < tileEntity.textList.size(); i++) {
-			TextDrawable text = tileEntity.textList.get(i);
-			GL11.glPushMatrix();
-			GL11.glScaled(2F, 2F, 2F);
-			this.font.drawString(text.getText(), (startX + (text.xPos()*2))/2, (startY + Math.abs((text.yPos()*2)-128))/2, text.getCol());
-			GL11.glScaled(0.5F, 0.5F, 0.5F);
-			GL11.glPopMatrix();
+		if (drawText) {
+			for (int i = 0; i < tileEntity.textList.size(); i++) {
+				TextDrawable text = tileEntity.textList.get(i);
+				GL11.glPushMatrix();
+				GL11.glScaled(2F, 2F, 2F);
+				this.font.drawString(text.getDrawableText(), (startX + (text.xPos()*2))/2, (startY + Math.abs((text.yPos()*2)-128))/2, text.getCol());
+				GL11.glScaled(0.5F, 0.5F, 0.5F);
+				GL11.glPopMatrix();
+			}
 		}
+		this.minecraft.getTextureManager().bindTexture(TEXTURE);
+		this.blit(startX + 128, startY - 1, 136, 7, 116, 130); //mask over any text which extrudes out of the box
 	}
 }

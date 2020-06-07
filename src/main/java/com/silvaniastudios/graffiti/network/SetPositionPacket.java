@@ -11,17 +11,21 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 public class SetPositionPacket {
 	
-	int position;
+	boolean blockAligned;
 	
 	int blockX;
 	int blockY;
 	int blockZ;
 	
-	public SetPositionPacket(BlockPos bPos, int pos) {
-		position = pos;
+	double offset;
+	
+	public SetPositionPacket(BlockPos bPos, boolean blockAligned, double offset) {
 		this.blockX = bPos.getX();
 		this.blockY = bPos.getY();
 		this.blockZ = bPos.getZ();
+		
+		this.blockAligned = blockAligned;
+		this.offset = offset;
 	}
 	
 	public static void encode(SetPositionPacket pkt, PacketBuffer buf) {
@@ -29,13 +33,16 @@ public class SetPositionPacket {
 		buf.writeInt(pkt.blockY);
 		buf.writeInt(pkt.blockZ);
 		
-		buf.writeInt(pkt.position);
+		buf.writeBoolean(pkt.blockAligned);
+		buf.writeDouble(pkt.offset);
 	}
 	
 	public static SetPositionPacket decode(PacketBuffer buf) {
 		return new SetPositionPacket(
 				new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), //block pos
-				buf.readInt());  //position
+				buf.readBoolean(), //position
+				buf.readDouble() //offset
+				);
 	}
 	
 	public static class Handler {
@@ -48,8 +55,8 @@ public class SetPositionPacket {
 				if (world.getTileEntity(pos) instanceof TileEntityGraffiti) {
 					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(pos);
 					
-					if (msg.position >= 0 && msg.position <= 2) {
-						te.setAlignment(msg.position);
+					if (msg.offset >= -0.5 && msg.offset <= 0.5) {
+						te.setAlignment(msg.blockAligned, msg.offset);
 						te.update();
 					}
 				}

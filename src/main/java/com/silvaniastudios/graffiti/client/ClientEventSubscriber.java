@@ -1,7 +1,7 @@
 package com.silvaniastudios.graffiti.client;
 
 import com.silvaniastudios.graffiti.Graffiti;
-import com.silvaniastudios.graffiti.client.gui.GuiCanvasEditorMain;
+import com.silvaniastudios.graffiti.client.gui.submenu.GuiCanvasEditorMain;
 import com.silvaniastudios.graffiti.tileentity.GraffitiContainerTypes;
 
 import net.minecraft.client.gui.ScreenManager;

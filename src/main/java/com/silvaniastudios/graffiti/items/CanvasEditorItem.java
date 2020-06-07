@@ -38,6 +38,4 @@ public class CanvasEditorItem extends Item {
 		
 		return super.onItemUse(context);
 	}
-	
-
 }
