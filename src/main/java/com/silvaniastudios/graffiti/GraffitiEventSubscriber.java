@@ -7,22 +7,16 @@ import com.silvaniastudios.graffiti.items.BasicPenItem;
 import com.silvaniastudios.graffiti.items.CanvasEditorItem;
 import com.silvaniastudios.graffiti.items.EraserItem;
 import com.silvaniastudios.graffiti.items.MagicPenItem;
-import com.silvaniastudios.graffiti.tileentity.ContainerGraffiti;
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.network.IContainerFactory;
-import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 @EventBusSubscriber(modid = Graffiti.MODID, bus = EventBusSubscriber.Bus.MOD)

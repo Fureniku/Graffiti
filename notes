@@ -1,0 +1,63 @@
+BUGS:
+- text AO is different to pixel AO
+
+UI work:
+- Import/Export submenu
+- Magic Pen colour menu
+
+
+Brushes:
+- Paint brush (2x2ish, ignoring scale)
+- Paint bucket (fill area)
+- Spraycan (RNG over area)
+- Watercolour pen (adjusts existing RGB value based on the pen's RGB instead of hard setting)
+
+Changelog:
+- More UI improvements:
+	- Text which is larger than the single block will be trimmed for neatness in the UI. The text itself is still allowed; I don't like to restrict freedoms :)
+	This doesn't apply in the text submenus.
+	- Pixel grid now has a submenu, where you can adjust the size or remove it
+	- Positioning now has a submenu, where you can set the positioning type and fine-tune the offset up to half a block in either direction.
+	- Text has a series of submenus, allowing you to edit or delete existing text objects and add new ones. (You can now fix those annoying typos!!)
+	- Adjusting the size of a pixel grid will now keep the original grid - either stretching/compressing the image, or cropping/adding blank space.
+
+Caveats:
+	- When editing text, the text preview is offset by half a "pixel" to the right. This is a scaling issue, and edited text will still draw where it originally was (unless you move it)
+	- Recipes aren't working ideally (they aren't shapeless for pen recolouring, and the base pen only accepts white wool. Blame the recipe system, it'll just take a bit of time to fix)
+	- For reasons unknown, underline and strikeout formatting isn't always rendering in the UI (but occasionally does). It'll still render in world just fine though.
+	- Text can be drawn outside of the 1x1 grid. If the block itself can't be seen, the floating text won't render. I intentionally didn't limit text to the 1x1 grid, but this render bug is a side effect.
+	If you don't like the bug, don't write text outside of the grid!
+
+TO-DO:
+	- Magic Pen + UI
+	- New brushes
+	- Configurable offsetting
+	- Configurable right-click actions
+	- Transparency
+	- Pixel drawing UI
+	- Locking (better functionality/more testing)
+	- Import JSON
+
+
+	1.4
+	- In-game cloning of art
+	- Text scale
+	- Premade shapes
+	- Draw game objects
+	- Backdrop block
+
+
+	Other
+	- Import/Export website
+
+
+
+
+Goals for fully editable artblock:
+- One backdrop block (panel behind everything taking an existing block's texture)
+- List of drawn objects
+- List of item/blocks drawn
+- Bool for each layer for fullbright texture
+
+- Option for position (64th extruded, flush with block, attach to block)
+- Bool for edit lock

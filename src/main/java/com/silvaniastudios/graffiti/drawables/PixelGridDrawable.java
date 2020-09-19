@@ -59,13 +59,15 @@ public class PixelGridDrawable extends DrawableBase {
 	}
 	
 	public boolean setPixel(int x, int y, int col, TileEntityGraffiti te) {
+		y = Math.abs(y-size);
+		return setPixelRaw(x, y, col, te);
+	}
+	
+	public boolean setPixelRaw(int x, int y, int col, TileEntityGraffiti te) {
 		if (!te.isLocked()) {
-			y = Math.abs(y-size);
-			//Prevent a desync issue if player tries to free-draw after removing a grid
-			if (pixelArray.length < 8) {
-				return false;
+			if (pixelArray.length != 0) {
+				pixelArray[x][y] = col;
 			}
-			pixelArray[x][y] = col;
 			return true;
 		}
 		return false;
@@ -84,6 +86,7 @@ public class PixelGridDrawable extends DrawableBase {
 			CompoundNBT gridnbt = new CompoundNBT();
 			pixels.size = pixels.getPixelGrid().length;
 			gridnbt.putInt("size", pixels.size);
+			gridnbt.putInt("transparency", pixels.transparency);
 			
 			for (int i = 0; i < pixels.size; i++) {
 				gridnbt.putIntArray("row_"+i, pixels.pixelArray[i]);
@@ -100,6 +103,8 @@ public class PixelGridDrawable extends DrawableBase {
 		if (nbt.contains("pixel_grid")) {
 			CompoundNBT gridnbt = nbt.getCompound("pixel_grid");
 			int size = gridnbt.getInt("size");
+			int transparency = 255;
+			if (gridnbt.contains("transparency")) { transparency = gridnbt.getInt("transparency"); }
 			
 			int[][] arr = new int[size][size];
 			
@@ -111,6 +116,7 @@ public class PixelGridDrawable extends DrawableBase {
 
 			PixelGridDrawable drawable = new PixelGridDrawable(size);
 			drawable.pixelArray = arr;
+			drawable.setTransparency(transparency);
 			return drawable;
 		}
 		return new PixelGridDrawable(16);

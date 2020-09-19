@@ -9,14 +9,14 @@ public class TextDrawable extends DrawableBase {
 	
 	private String text;
 	private int colour;
-	private int xPos;
-	private int yPos;
+	private short xPos;
+	private short yPos;
 	private float scale;
-	private int rotation;
+	private short rotation;
 	private String format;
-	private int alignment; //0 = left, 1 = centre, 2 = right
+	private short alignment; //0 = left, 1 = centre, 2 = right
 	
-	public TextDrawable(String txt, int x, int y, int col, float scale, int rot, String format, int alignment) {
+	public TextDrawable(String txt, short x, short y, int col, float scale, short rot, String format, short alignment) {
 		this.text = txt;
 		this.colour = col;
 		this.xPos = x;
@@ -35,11 +35,11 @@ public class TextDrawable extends DrawableBase {
 		return colour;
 	}
 	
-	public int xPos() {
+	public short xPos() {
 		return xPos;
 	}
 	
-	public int yPos() {
+	public short yPos() {
 		return yPos;
 	}
 	
@@ -47,7 +47,7 @@ public class TextDrawable extends DrawableBase {
 		return scale;
 	}
 	
-	public int getRotation() {
+	public short getRotation() {
 		return rotation;
 	}
 	
@@ -55,7 +55,7 @@ public class TextDrawable extends DrawableBase {
 		return format;
 	}
 	
-	public int getAlignment() {
+	public short getAlignment() {
 		return alignment;
 	}
 	
@@ -66,17 +66,19 @@ public class TextDrawable extends DrawableBase {
 	public static CompoundNBT serializeNBT(CompoundNBT nbt, ArrayList<TextDrawable> textList) {
 		ListNBT listnbt = new ListNBT();
 		
+		System.out.println("Serializing " + textList.size() + " texts");
+		
 		for (int i = 0; i < textList.size(); i++) {
 			TextDrawable t = textList.get(i);
 			CompoundNBT textnbt = new CompoundNBT();
 			textnbt.putString("text", t.text);
 			textnbt.putInt("colour", t.colour);
-			textnbt.putInt("xPos", t.xPos);
-			textnbt.putInt("yPos", t.yPos);
+			textnbt.putShort("xPos", t.xPos);
+			textnbt.putShort("yPos", t.yPos);
 			textnbt.putFloat("scale", t.scale);
-			textnbt.putInt("rotation", t.rotation);
+			textnbt.putShort("rotation", t.rotation);
 			textnbt.putString("format", t.format);
-			textnbt.putInt("alignment", t.alignment);
+			textnbt.putShort("alignment", t.alignment);
 			
 			listnbt.add(textnbt);
 		}
@@ -95,12 +97,12 @@ public class TextDrawable extends DrawableBase {
 				CompoundNBT textnbt = list.getCompound(i);
 				String text = textnbt.getString("text");
 				int colour = textnbt.getInt("colour");
-				int xPos = textnbt.getInt("xPos");
-				int yPos = textnbt.getInt("yPos");
+				short xPos = textnbt.getShort("xPos");
+				short yPos = textnbt.getShort("yPos");
 				float scale = textnbt.getFloat("scale");
-				int rot = textnbt.getInt("rotation");
+				short rot = textnbt.getShort("rotation");
 				String format = textnbt.getString("format");
-				int alignment = textnbt.getInt("alignment");
+				short alignment = textnbt.getShort("alignment");
 				textList.add(new TextDrawable(text, xPos, yPos, colour, scale, rot, format, alignment));
 			}
 		}

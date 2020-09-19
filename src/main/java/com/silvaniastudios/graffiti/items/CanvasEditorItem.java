@@ -3,7 +3,6 @@ package com.silvaniastudios.graffiti.items;
 import com.silvaniastudios.graffiti.block.GraffitiBlock;
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
 
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUseContext;
@@ -25,17 +24,30 @@ public class CanvasEditorItem extends Item {
 		
 		if (context.getHand() == Hand.MAIN_HAND && !world.isRemote) {
 			BlockPos clickedPos = context.getPos();
-			Block clickedBlock = world.getBlockState(clickedPos).getBlock();
 			
-			if (clickedBlock instanceof GraffitiBlock) {
-				if (world.getTileEntity(clickedPos) instanceof TileEntityGraffiti) {
-					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(clickedPos);
-					
-					NetworkHooks.openGui((ServerPlayerEntity) context.getPlayer(), te, context.getPos());
+			if (world.getBlockState(clickedPos).getBlock() instanceof GraffitiBlock) {
+				return attemptOpenGui(context, clickedPos);
+			} else {
+				BlockPos offsetPos = context.getPos().offset(context.getFace());
+				if (world.getBlockState(offsetPos).getBlock() instanceof GraffitiBlock) {
+					return attemptOpenGui(context, offsetPos);
 				}
 			}
 		}
 		
 		return super.onItemUse(context);
+	}
+	
+	private ActionResultType attemptOpenGui(ItemUseContext context, BlockPos pos) {
+		if (context.getWorld().getTileEntity(pos) instanceof TileEntityGraffiti) {
+			TileEntityGraffiti te = (TileEntityGraffiti) context.getWorld().getTileEntity(pos);
+			
+			NetworkHooks.openGui((ServerPlayerEntity) context.getPlayer(), te, buf -> {
+				buf.writeBlockPos(pos);
+				buf.writeInt(context.getFace().getOpposite().getIndex());
+			});
+			return ActionResultType.PASS;
+		}
+		return ActionResultType.FAIL;
 	}
 }

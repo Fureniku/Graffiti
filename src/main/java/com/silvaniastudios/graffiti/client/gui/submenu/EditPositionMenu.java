@@ -64,6 +64,11 @@ public class EditPositionMenu extends GuiCanvasEditorBase {
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		this.drawCenteredString(this.font, "Set positioning options", xSize / 2, 7, 4210752);
+	}
+	
+	@Override
+	public void render(int mouseX, int mouseY, float p_render_3_) {
+		super.render(mouseX, mouseY, p_render_3_);
 		
 		if (alignNormal.isHovered()) {
 			List<String> list = new ArrayList<String>();
@@ -117,26 +122,16 @@ public class EditPositionMenu extends GuiCanvasEditorBase {
 		});
 		
 		
-		offsetSldr = new Slider(startX + 17, startY + 42, 184, 20, "Offset: ", "", -0.5, 0.5, 0, true, true, (p_214266_1_) -> {});
+		offsetSldr = new Slider(startX + 17, startY + 42, 184, 20, "Offset: ", "", -0.25, 0.25, 0, true, true, (p_214266_1_) -> {});
 		offsetSldr.precision = 7;
 		
 		offsetDecreaseBtn = new Button(startX + 7, startY + 42, 10, 20, "-", (p_214266_1_) -> {
-			if (offsetSldr.getValue() > -0.5 + (1.0/128.0)) {
-				offsetSldr.setValue(offsetSldr.getValue() - (1.0/128.0));
-			} else {
-				offsetSldr.setValue(-0.5);
-			}
-			
+			offsetSldr.setValue(offsetSldr.getValue() - (1.0/128.0));
 			offsetSldr.updateSlider();
 		});
 		
 		offsetIncreaseBtn = new Button(startX + 201, startY + 42, 10, 20, "+", (p_214266_1_) -> {
-			if (offsetSldr.getValue() < 0.5 - (1.0/128.0)) {
-				offsetSldr.setValue(offsetSldr.getValue() + (1.0/128.0));
-			} else {
-				offsetSldr.setValue(0.5);
-			}
-			
+			offsetSldr.setValue(offsetSldr.getValue() + (1.0/128.0));
 			offsetSldr.updateSlider();
 		});
 		
@@ -155,15 +150,21 @@ public class EditPositionMenu extends GuiCanvasEditorBase {
 		});
 		
 		saveBtn = new Button(startX + 111, startY + 94, 100, 20, "Save Changes", (p_214266_1_) -> {
-			GraffitiPacketHandler.INSTANCE.sendToServer(new SetPositionPacket(tileEntity.getPos(), inBlockOffset, offsetSldr.getValue()));
+			GraffitiPacketHandler.INSTANCE.sendToServer(new SetPositionPacket(inBlockOffset, offsetSldr.getValue()));
 			
 			this.minecraft.displayGuiScreen(new GuiCanvasEditorMain(this.container, this.playerInventory, this.title));
 		});
 		
-		offsetSldr.setValue(tileEntity.getAlignment());
+		offsetSldr.setValue(graffiti.getAlignment());
 		offsetSldr.updateSlider();
 		
-		alignNormal.active = tileEntity.isOffsetIntoBlock();
-		alignOffset.active = !tileEntity.isOffsetIntoBlock();
+		alignNormal.active = graffiti.isOffsetIntoBlock();
+		alignOffset.active = !graffiti.isOffsetIntoBlock();
+	}
+	
+	@Override
+	public boolean mouseReleased(double p_mouseReleased_1_, double p_mouseReleased_3_, int p_mouseReleased_5_) {
+		offsetSldr.mouseReleased(p_mouseReleased_1_, p_mouseReleased_3_, p_mouseReleased_5_);
+		return super.mouseReleased(p_mouseReleased_1_, p_mouseReleased_3_, p_mouseReleased_5_);
 	}
 }

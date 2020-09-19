@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.silvaniastudios.graffiti.client.gui.GuiCanvasEditorBase;
 import com.silvaniastudios.graffiti.drawables.PixelGridDrawable;
-import com.silvaniastudios.graffiti.network.ModifyGridPacket;
 import com.silvaniastudios.graffiti.network.GraffitiPacketHandler;
+import com.silvaniastudios.graffiti.network.ModifyGridPacket;
 import com.silvaniastudios.graffiti.tileentity.ContainerGraffiti;
 import com.silvaniastudios.graffiti.util.GraffitiUtils;
 
@@ -34,6 +34,9 @@ public class PixelGridMenu extends GuiCanvasEditorBase {
 	Button showHideTextBtn;
 	Button resetTransparencyBtn;
 	
+	Button transparencyIncreaseBtn;
+	Button transparencyDecreaseBtn;
+	
 	Button saveBtn;
 	Button discardBtn;
 	
@@ -41,8 +44,10 @@ public class PixelGridMenu extends GuiCanvasEditorBase {
 	
 	public PixelGridMenu(ContainerGraffiti container, PlayerInventory inv, ITextComponent text) {
 		super(container, inv, text);
-		grid = tileEntity.pixelGrid;
+		grid = graffiti.pixelGrid;
 		sizeId = GraffitiUtils.sizeToId(grid.getSize());
+		
+		this.ySize = 196;
 	}
 	
 	private void initButtons() {
@@ -81,7 +86,7 @@ public class PixelGridMenu extends GuiCanvasEditorBase {
 		
 		yesBtn = new Button(startX + 141, startY + 117, 44, 20, "Yes", (p_214266_1_) -> {
 			if (deleteFlag) {
-				GraffitiPacketHandler.INSTANCE.sendToServer(new ModifyGridPacket(tileEntity.getPos(), 0, (int) Math.round(transparencySldr.getValue()), resize));
+				GraffitiPacketHandler.INSTANCE.sendToServer(new ModifyGridPacket(0, transparencySldr.getValueInt(), resize));
 				toggleDeleteMenu(false);
 			}
 		});
@@ -92,35 +97,48 @@ public class PixelGridMenu extends GuiCanvasEditorBase {
 			}
 		});
 		
-		showHideTextBtn = new Button(startX + 7, startY + 141, 130, 20, "Show Text", (p_214266_1_) -> {
+		showHideTextBtn = new Button(startX + 141, startY + 117, 108, 20, "Show Text", (p_214266_1_) -> {
 			showText = !showText;
 			
 			showHideTextBtn.setMessage(showText ? "Hide Text" : "Show Text");
 		});
 		
-		transparencySldr = new Slider(startX + 7, startY + 181, 198, 20, "Transparency: ", "", 0, 255, 255, false, true, (p_214266_1_) -> {});
+		transparencySldr = new Slider(startX + 17, startY + 141, 178, 20, "Transparency: ", "", 0, 255, 255, false, true, (p_214266_1_) -> {});
 		
-		resetTransparencyBtn = new Button(startX + 209, startY + 181, 40, 20, "Reset", (p_214266_1_) -> {
+		resetTransparencyBtn = new Button(startX + 209, startY + 141, 40, 20, "Reset", (p_214266_1_) -> {
 			transparencySldr.setValue(255);
 			transparencySldr.updateSlider();
 		});
 		
-		discardBtn = new Button(startX + 7, startY + 221, 110, 20, "Discard Changes", (p_214266_1_) -> {
+		discardBtn = new Button(startX + 7, startY + 169, 110, 20, "Discard Changes", (p_214266_1_) -> {
 			this.minecraft.displayGuiScreen(new GuiCanvasEditorMain(this.container, this.playerInventory, this.title));
 		});
 		
-		saveBtn = new Button(startX + 139, startY + 221, 110, 20, "Save Changes", (p_214266_1_) -> {
+		saveBtn = new Button(startX + 139, startY + 169, 110, 20, "Save Changes", (p_214266_1_) -> {
 			int size = 0;
 			if (sizeId == 0) { size = 16; } else if (sizeId == 1) { size = 32; } else if (sizeId == 2) { size = 64; } else if (sizeId == 3) { size = 128; }
 			
-			GraffitiPacketHandler.INSTANCE.sendToServer(new ModifyGridPacket(tileEntity.getPos(), size, (int) Math.round(transparencySldr.getValue()), resize));
+			GraffitiPacketHandler.INSTANCE.sendToServer(new ModifyGridPacket(size, (int) Math.round(transparencySldr.getValue()), resize));
 			
 			this.minecraft.displayGuiScreen(new GuiCanvasEditorMain(this.container, this.playerInventory, this.title));
 		});
+		
+		transparencyDecreaseBtn = new Button(startX + 7, startY + 141, 10, 20, "-", (p_214266_1_) -> {
+			transparencySldr.setValue(transparencySldr.getValue() - 1);
+			transparencySldr.updateSlider();
+		});
+		
+		transparencyIncreaseBtn = new Button(startX + 195, startY + 141, 10, 20, "+", (p_214266_1_) -> {
+			transparencySldr.setValue(transparencySldr.getValue() + 1);
+			transparencySldr.updateSlider();
+		});
+		
+		transparencySldr.setValue(graffiti.pixelGrid.getTransparency());
+		transparencySldr.updateSlider();
 	}
 	
 	protected void validateGridScaling() {
-		grid = new PixelGridDrawable(GraffitiUtils.rescaleMultiple(tileEntity.pixelGrid.getPixelGrid(), GraffitiUtils.idToSize(sizeId), resize));
+		grid = new PixelGridDrawable(GraffitiUtils.rescaleMultiple(graffiti.pixelGrid.getPixelGrid(), GraffitiUtils.idToSize(sizeId), resize));
 	}
 	
 	@Override
@@ -144,6 +162,9 @@ public class PixelGridMenu extends GuiCanvasEditorBase {
 		this.addButton(saveBtn);
 		this.addButton(discardBtn);
 		
+		this.addButton(transparencyDecreaseBtn);
+		this.addButton(transparencyIncreaseBtn);
+		
 		if (sizeId == 0) { decreaseGridSizeBtn.active = false; }
 		if (sizeId == 3) { increaseGridSizeBtn.active = false; }
 		
@@ -157,27 +178,35 @@ public class PixelGridMenu extends GuiCanvasEditorBase {
 		yesBtn.visible = b;
 		noBtn.active = b;
 		noBtn.visible = b;
+		
+		showHideTextBtn.active = !b;
+		showHideTextBtn.visible = !b;
 	}
 	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 		
-		drawGraffiti(tileEntity.pixelGrid, true, showText);
+		int i = (this.width - this.xSize) / 2;
+		int j = (this.height - this.ySize) / 2;
+		
+		this.blit(i, j+189, 0, 249, this.xSize, 7);	
+		
+		drawGraffiti(graffiti, true, showText);
 	}
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		this.drawCenteredString(this.font, "Pixel Grid", 197, 8, 4210752);
+		this.drawCenteredString(this.font, "Pixel Grid", 195, 8, 4210752);
 		
-		if (sizeId == 0) { this.drawCenteredString(this.font, "16x16", 197, 27, 4210752); }
-		if (sizeId == 1) { this.drawCenteredString(this.font, "32x32", 197, 27, 4210752); }
-		if (sizeId == 2) { this.drawCenteredString(this.font, "64x64", 197, 27, 4210752); }
-		if (sizeId == 3) { this.drawCenteredString(this.font, "128x128", 197, 27, 4210752); }
+		if (sizeId == 0) { this.drawCenteredString(this.font, "16x16", 195, 27, 4210752); }
+		if (sizeId == 1) { this.drawCenteredString(this.font, "32x32", 195, 27, 4210752); }
+		if (sizeId == 2) { this.drawCenteredString(this.font, "64x64", 195, 27, 4210752); }
+		if (sizeId == 3) { this.drawCenteredString(this.font, "128x128", 195, 27, 4210752); }
 		
 		if (deleteFlag) {
-			this.drawCenteredString(this.font, "Are you sure?", 197, 94, 4210752);
-			this.drawCenteredString(this.font, "This can't be undone!", 197, 104, 4210752);
+			this.drawCenteredString(this.font, "Are you sure?", 195, 94, 4210752);
+			this.drawCenteredString(this.font, "This can't be undone!", 195, 104, 4210752);
 		}
 
 		if (resizeBtn.isHovered()) {
@@ -187,5 +216,11 @@ public class PixelGridMenu extends GuiCanvasEditorBase {
 			list.add("False: the image will move to the top-left, or crop to only show the previous top-left.");
 			this.renderTooltip(list, mouseX, mouseY);
 		}
+	}
+	
+	@Override
+	public boolean mouseReleased(double p_mouseReleased_1_, double p_mouseReleased_3_, int p_mouseReleased_5_) {
+		transparencySldr.mouseReleased(p_mouseReleased_1_, p_mouseReleased_3_, p_mouseReleased_5_);
+		return super.mouseReleased(p_mouseReleased_1_, p_mouseReleased_3_, p_mouseReleased_5_);
 	}
 }

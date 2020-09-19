@@ -3,10 +3,11 @@ package com.silvaniastudios.graffiti.client.gui;
 import org.lwjgl.opengl.GL11;
 
 import com.silvaniastudios.graffiti.Graffiti;
+import com.silvaniastudios.graffiti.drawables.CompleteGraffitiObject;
 import com.silvaniastudios.graffiti.drawables.PixelGridDrawable;
 import com.silvaniastudios.graffiti.drawables.TextDrawable;
 import com.silvaniastudios.graffiti.network.GraffitiPacketHandler;
-import com.silvaniastudios.graffiti.network.WriteTextPacket;
+import com.silvaniastudios.graffiti.network.WriteTextFromPenPacket;
 import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
 
 import net.minecraft.client.gui.FontRenderer;
@@ -18,6 +19,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 public class GuiWriteText extends Screen {
 	
 	private TileEntityGraffiti tileEntity;
+	private CompleteGraffitiObject graffiti;
 	private int x;
 	private int y;
 	private int col;
@@ -37,14 +39,15 @@ public class GuiWriteText extends Screen {
 	
 	private static final ResourceLocation TEXTURE = new ResourceLocation(Graffiti.MODID, "textures/gui/drawing.png");
 
-	public GuiWriteText(TileEntityGraffiti te, int posX, int posY, int colour, int rot) {
+	public GuiWriteText(TileEntityGraffiti tileEntity, CompleteGraffitiObject graffiti, int posX, int posY, int colour, int rot) {
 		super(new TranslationTextComponent("graffiti.write"));
 		x = posX;
 		y = posY;
 		col = colour;
 		rotation = rot;
 		
-		tileEntity = te;
+		this.tileEntity = tileEntity;
+		this.graffiti = graffiti;
 	}
 
 	@Override
@@ -92,9 +95,8 @@ public class GuiWriteText extends Screen {
 		this.tileEntity.markDirty();
 		this.minecraft.displayGuiScreen((Screen)null);
 		if (!typedText.isEmpty()) {
-			GraffitiPacketHandler.INSTANCE.sendToServer(new WriteTextPacket(typedText, tileEntity.getPos(), this.x, this.y, scale, col, rotation, buildFormatString(), 0));
+			GraffitiPacketHandler.INSTANCE.sendToServer(new WriteTextFromPenPacket(typedText, tileEntity.getPos(), (short) this.x, (short) this.y, scale, col, (short) rotation, buildFormatString(), (short) 0, this.graffiti.getSide().getIndex()));
 		}
-		//this.minecraft.setRenderViewEntity(this.minecraft.player);
 	}
 	
 	public String buildFormatString() {
@@ -116,10 +118,10 @@ public class GuiWriteText extends Screen {
 		int startX = (this.width / 2) - (this.xSize / 2) + 11;
 		int startY = (this.height / 2) - (this.ySize / 2) + 11;
 		
-		int texture = tileEntity.pixelGrid == null ? 0 : tileEntity.pixelGrid.getSize();
-		if (tileEntity.pixelGrid != null) {
-			if (tileEntity.pixelGrid.getSize() == 16)  texture = 0; 
-			if (tileEntity.pixelGrid.getSize() == 128) texture = 96; 
+		int texture = graffiti.pixelGrid == null ? 0 : graffiti.pixelGrid.getSize();
+		if (graffiti.pixelGrid != null) {
+			if (graffiti.pixelGrid.getSize() == 16)  texture = 0; 
+			if (graffiti.pixelGrid.getSize() == 128) texture = 96; 
 		}
 		
 		this.blit(startX, startY, 11+texture, 11, 32, 128);
@@ -132,7 +134,6 @@ public class GuiWriteText extends Screen {
 
 	@Override
 	public void render(int x, int y, float partialTick) {
-		//RenderHelper.setupGuiFlatDiffuseLighting();
 		this.renderBackground();
 		this.drawCenteredString(this.font, "X: " + this.x, this.width / 2 + 69, this.height / 2 - 59, 4210752);
 		this.drawCenteredString(this.font, "Y: " + Math.abs(this.y-64), this.width / 2 + 69, this.height / 2 - 35, 4210752);
@@ -172,7 +173,7 @@ public class GuiWriteText extends Screen {
 		int startX = (this.width / 2) - (this.xSize / 2) + 11;
 		int startY = (this.height / 2) - (this.ySize / 2) + 11;
 		
-		PixelGridDrawable grid = tileEntity.pixelGrid;
+		PixelGridDrawable grid = graffiti.pixelGrid;
 		if (grid != null && grid.getSize() > 0) {
 			int size = 8;
 			if (grid.getSize() == 32) {
@@ -189,8 +190,8 @@ public class GuiWriteText extends Screen {
 				}
 			}
 		}
-		for (int i = 0; i < tileEntity.textList.size(); i++) {
-			TextDrawable text = tileEntity.textList.get(i);
+		for (int i = 0; i < graffiti.textList.size(); i++) {
+			TextDrawable text = graffiti.textList.get(i);
 			
 			GL11.glPushMatrix();
 			GL11.glScaled(2F, 2F, 2F);

@@ -81,7 +81,7 @@ public class CreatePixelGrid extends GuiCanvasEditorBase {
 	}
 
 	private void sendPacket(int size) {
-		GraffitiPacketHandler.INSTANCE.sendToServer(new ModifyGridPacket(tileEntity.getPos(), size, (int) Math.round(255), false));
+		GraffitiPacketHandler.INSTANCE.sendToServer(new ModifyGridPacket(size, (int) Math.round(255), false));
 		this.minecraft.displayGuiScreen(new GuiCanvasEditorMain(this.container, this.playerInventory, this.title));
 	}
 }

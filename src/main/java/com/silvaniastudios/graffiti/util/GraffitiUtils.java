@@ -1,5 +1,12 @@
 package com.silvaniastudios.graffiti.util;
 
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+
 public class GraffitiUtils {
 	
 	//Increase the canvas size, stretching so the original image appears identical to before the increase
@@ -151,5 +158,65 @@ public class GraffitiUtils {
 		if (id == 2) { return 64; }
 		if (id == 3) { return 128; }
 		return 0;
+	}
+	
+	public static boolean hasBold(String str) {
+		return str.contains("§l");
+	}
+	
+	public static boolean hasItalic(String str) {
+		return str.contains("§o");
+	}
+	
+	public static boolean hasUnderline(String str) {
+		return str.contains("§n");
+	}
+	
+	public static boolean hasStrikethrough(String str) {
+		return str.contains("§m");
+	}
+
+	public static String rightClickActionString(int id) {
+		if (id == 0) {
+			return "Click-Through";
+		}
+		if (id == 2) {
+			return "Display Art";
+		}
+		if (id == 3) {
+			return "Open URL";
+		}
+		return "No Action";
+	}
+	
+	public int[][] rotateClockwise(int[][] gridIn) {
+		int[][] gridOut = new int[gridIn.length][gridIn.length];
+		
+		for (int i = 0; i < gridIn.length; i++) {
+			for (int j = 0; j < gridIn.length; j++) {
+				gridOut[i][j] = gridIn[j][i];
+			}
+		}
+		return gridOut;
+	}
+	
+	/*
+	 * Ray trace is used for a lot of places where we need to check if players looking at a specific part of graffiti.
+	 * This is taken from the Item class with slight modifications, and made available everywhere.
+	*/
+	public static BlockRayTraceResult rayTrace(World worldIn, PlayerEntity player) {
+		float f = player.rotationPitch;
+		float f1 = player.rotationYaw;
+		Vec3d vec3d = player.getEyePosition(1.0F);
+		float f2 = MathHelper.cos(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
+		float f3 = MathHelper.sin(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
+		float f4 = -MathHelper.cos(-f * ((float)Math.PI / 180F));
+		float f5 = MathHelper.sin(-f * ((float)Math.PI / 180F));
+		float f6 = f3 * f4;
+		float f7 = f2 * f4;
+		double d0 = player.getAttribute(PlayerEntity.REACH_DISTANCE).getValue();;
+		Vec3d vec3d1 = vec3d.add((double)f6 * d0, (double)f5 * d0, (double)f7 * d0);
+		System.out.println("tracing");
+		return worldIn.rayTraceBlocks(new RayTraceContext(vec3d, vec3d1, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, player));
 	}
 }

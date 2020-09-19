@@ -3,9 +3,6 @@ package com.silvaniastudios.graffiti.util;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,7 +12,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.silvaniastudios.graffiti.Graffiti;
-import com.silvaniastudios.graffiti.drawables.PixelGridDrawable;
+import com.silvaniastudios.graffiti.drawables.CompleteGraffitiObject;
 import com.silvaniastudios.graffiti.drawables.TextDrawable;
 
 import net.minecraft.util.text.StringTextComponent;
@@ -26,14 +23,14 @@ public class FileExport {
 	
 	public static final int JSON_VERSION = 2;
 	
-	public static StringTextComponent createFile(String fileName, PixelGridDrawable pixelGrid, ArrayList<TextDrawable> textList, double alignment) {
+	public static StringTextComponent createFile(String fileName, CompleteGraffitiObject graffiti, String playerName) {
 		File dir = new File("./graffiti/");
 		
 		if (!dir.exists()) {
 			dir.mkdir();
 		}
 		
-		int[][] grid = pixelGrid.getPixelGrid();
+		int[][] grid = graffiti.pixelGrid.getPixelGrid();
 		
 		JsonArray gridArray = new JsonArray();
 		JsonArray textObjectArray = new JsonArray();
@@ -48,8 +45,8 @@ public class FileExport {
 			gridArray.add(subArray);
 		}
 		
-		for (int i = 0; i < textList.size(); i++) {
-			TextDrawable text = textList.get(i);
+		for (int i = 0; i < graffiti.textList.size(); i++) {
+			TextDrawable text = graffiti.textList.get(i);
 			JsonObject textObject = new JsonObject();
 			
 			textObject.add("text", new JsonPrimitive(text.getText()));
@@ -64,23 +61,22 @@ public class FileExport {
 			textObjectArray.add(textObject);
 		}
 		
-		LocalDateTime dateTime = LocalDateTime.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss");
-		
 		try {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			
-		    Writer writer = new FileWriter("./graffiti/" + dateTime.format(formatter) + "-" + fileName + ".json");
+		    Writer writer = new FileWriter("./graffiti/" + fileName + ".json");
 
 		    JsonObject json = new JsonObject();
 		    json.add("json_version", new JsonPrimitive(JSON_VERSION));
 		    json.add("mod_version", new JsonPrimitive(getModVersion()));
 		    json.add("source", new JsonPrimitive("Game"));
-		    json.add("alignment", new JsonPrimitive(alignment));
+		    json.add("artist", new JsonPrimitive(playerName));
+		    json.add("offset", new JsonPrimitive(graffiti.isOffsetIntoBlock()));
+		    json.add("offset_amount", new JsonPrimitive(graffiti.getAlignment()));
 		    json.add("texts", textObjectArray);
 		    json.add("drawables", drawableArray);
-		    json.add("grid_transparency", new JsonPrimitive(pixelGrid.getTransparency()));
-		    json.add("grid_scale", new JsonPrimitive(pixelGrid.getSize()));
+		    json.add("grid_transparency", new JsonPrimitive(graffiti.pixelGrid.getTransparency()));
+		    json.add("grid_scale", new JsonPrimitive(graffiti.pixelGrid.getSize()));
 		    json.add("grid", gridArray);
 		    
 		    gson.toJson(json, writer);
@@ -92,7 +88,7 @@ public class FileExport {
 		    return new StringTextComponent("File export failed! See log for details.");
 		}
 		
-		return new StringTextComponent("File \"" + dateTime.format(formatter) + "-" + fileName + ".json\" successfully exported");
+		return new StringTextComponent("File \"" + fileName + ".json\" successfully exported");
 	}
 
 	

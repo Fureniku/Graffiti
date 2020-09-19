@@ -3,35 +3,25 @@ package com.silvaniastudios.graffiti.network;
 import java.util.function.Supplier;
 
 import com.silvaniastudios.graffiti.drawables.PixelGridDrawable;
-import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
+import com.silvaniastudios.graffiti.tileentity.ContainerGraffiti;
 import com.silvaniastudios.graffiti.util.GraffitiUtils;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 public class ModifyGridPacket {
-	
-	int blockX;
-	int blockY;
-	int blockZ;
 	
 	int size;
 	int transparency;
 	
 	boolean rescale;
 	
-	public ModifyGridPacket(BlockPos bPos, int size, int transparency, boolean rescale) {
-
-		this.blockX = bPos.getX();
-		this.blockY = bPos.getY();
-		this.blockZ = bPos.getZ();
-		
+	public ModifyGridPacket(int size, int transparency, boolean rescale) {
 		this.size = size;
 		this.transparency = transparency;
 		
@@ -39,16 +29,13 @@ public class ModifyGridPacket {
 	}
 	
 	public static void encode(ModifyGridPacket pkt, PacketBuffer buf) {
-		buf.writeInt(pkt.blockX);
-		buf.writeInt(pkt.blockY);
-		buf.writeInt(pkt.blockZ);
 		buf.writeInt(pkt.size);
 		buf.writeInt(pkt.transparency);
 		buf.writeBoolean(pkt.rescale);
 	}
 	
 	public static ModifyGridPacket decode(PacketBuffer buf) {
-		return new ModifyGridPacket(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), //blockpos
+		return new ModifyGridPacket(
 				buf.readInt(), //size
 				buf.readInt(), //transparency
 				buf.readBoolean() //resize;
@@ -59,41 +46,45 @@ public class ModifyGridPacket {
 		public static void handle(final ModifyGridPacket msg, Supplier<NetworkEvent.Context> ctx) {
 			
 			ctx.get().enqueueWork(() -> {
-				World world = ctx.get().getSender().world;
-				BlockPos pos = new BlockPos(msg.blockX, msg.blockY, msg.blockZ);
 				PlayerEntity player = ctx.get().getSender();
+				Container ctr = player.openContainer;
 				
-				if (world.getTileEntity(pos) instanceof TileEntityGraffiti) {
-					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(pos);
-					if (!te.isLocked()) {
-						if (te.pixelGrid == null || te.pixelGrid.getSize() == 0) {
+				if (ctr instanceof ContainerGraffiti) {
+					ContainerGraffiti container = (ContainerGraffiti) ctr;
+					System.out.println("canvas packet in: " + msg.size + ", " + msg.transparency);
+					if (!container.te.isLocked()) {
+						if (container.graffiti.pixelGrid == null || container.graffiti.pixelGrid.getSize() == 0) {
+							System.out.println("empty grid, make a new one");
 							if (msg.size == 16 || msg.size == 32 || msg.size == 64 || msg.size == 128) {
-								te.pixelGrid = new PixelGridDrawable(msg.size);
-								te.pixelGrid.setTransparency(msg.transparency);
-								te.update();
+								container.graffiti.pixelGrid = new PixelGridDrawable(msg.size);
+								container.graffiti.pixelGrid.setTransparency(msg.transparency);
 								player.sendMessage(new StringTextComponent("Added new " + msg.size + "x" + msg.size + " pixel grid"));
 							} else {
 								System.out.println("Malformed canvas editing packet received from " + player.getDisplayName());
 							}
-						} else if ((msg.size == 16 || msg.size == 32 || msg.size == 64 || msg.size == 128) && msg.size != te.pixelGrid.getSize()) {
-							te.pixelGrid.setTransparency(msg.transparency);
-							te.pixelGrid.setNewGrid(msg.size, GraffitiUtils.rescaleMultiple(te.pixelGrid.getPixelGrid(), msg.size, msg.rescale));
-							te.update();
-							player.sendMessage(new StringTextComponent("Pixel grid resized."));
+						} else if ((msg.size == 16 || msg.size == 32 || msg.size == 64 || msg.size == 128)) {
+							System.out.println("set transparency");
+							container.graffiti.pixelGrid.setTransparency(msg.transparency);
+							if (msg.size != container.graffiti.pixelGrid.getSize()) {
+								System.out.println("modify grid size");
+								container.graffiti.pixelGrid.setTransparency(msg.transparency);
+								container.graffiti.pixelGrid.setNewGrid(msg.size, GraffitiUtils.rescaleMultiple(container.graffiti.pixelGrid.getPixelGrid(), msg.size, msg.rescale));
+								player.sendMessage(new StringTextComponent("Pixel grid resized."));
+							}
 						} else if (msg.size == 0) {
-							te.pixelGrid = new PixelGridDrawable(0);
-							te.update();
+							System.out.println("wipe grid");
+							container.graffiti.pixelGrid = new PixelGridDrawable(0);
+							container.te.update();
 							
-							NetworkHooks.openGui((ServerPlayerEntity) player, te, te.getPos());
+							NetworkHooks.openGui((ServerPlayerEntity) player, container.te, container.te.getPos());
 							player.sendMessage(new StringTextComponent("Pixel grid removed."));
 						}
+						container.te.update();
 					}
 				}
 			});
 			
 			ctx.get().setPacketHandled(true);
 		}
-		
-		
 	}
 }

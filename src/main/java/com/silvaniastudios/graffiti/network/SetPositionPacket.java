@@ -2,44 +2,30 @@ package com.silvaniastudios.graffiti.network;
 
 import java.util.function.Supplier;
 
-import com.silvaniastudios.graffiti.tileentity.TileEntityGraffiti;
+import com.silvaniastudios.graffiti.tileentity.ContainerGraffiti;
 
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 public class SetPositionPacket {
 	
 	boolean blockAligned;
-	
-	int blockX;
-	int blockY;
-	int blockZ;
-	
 	double offset;
 	
-	public SetPositionPacket(BlockPos bPos, boolean blockAligned, double offset) {
-		this.blockX = bPos.getX();
-		this.blockY = bPos.getY();
-		this.blockZ = bPos.getZ();
-		
+	public SetPositionPacket(boolean blockAligned, double offset) {
 		this.blockAligned = blockAligned;
 		this.offset = offset;
 	}
 	
 	public static void encode(SetPositionPacket pkt, PacketBuffer buf) {
-		buf.writeInt(pkt.blockX);
-		buf.writeInt(pkt.blockY);
-		buf.writeInt(pkt.blockZ);
-		
 		buf.writeBoolean(pkt.blockAligned);
 		buf.writeDouble(pkt.offset);
 	}
 	
 	public static SetPositionPacket decode(PacketBuffer buf) {
 		return new SetPositionPacket(
-				new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), //block pos
 				buf.readBoolean(), //position
 				buf.readDouble() //offset
 				);
@@ -49,15 +35,14 @@ public class SetPositionPacket {
 		public static void handle(final SetPositionPacket msg, Supplier<NetworkEvent.Context> ctx) {
 			
 			ctx.get().enqueueWork(() -> {
-				World world = ctx.get().getSender().world;
-				BlockPos pos = new BlockPos(msg.blockX, msg.blockY, msg.blockZ);
+				PlayerEntity player = ctx.get().getSender();
+				Container ctr = player.openContainer;
 				
-				if (world.getTileEntity(pos) instanceof TileEntityGraffiti) {
-					TileEntityGraffiti te = (TileEntityGraffiti) world.getTileEntity(pos);
-					
-					if (msg.offset >= -0.5 && msg.offset <= 0.5) {
-						te.setAlignment(msg.blockAligned, msg.offset);
-						te.update();
+				if (ctr instanceof ContainerGraffiti) {
+					ContainerGraffiti container = (ContainerGraffiti) ctr;
+					if (msg.offset >= -0.25 && msg.offset <= 0.25) {
+						container.graffiti.setAlignment(msg.blockAligned, msg.offset, container.te);
+						container.te.update();
 					}
 				}
 			});
